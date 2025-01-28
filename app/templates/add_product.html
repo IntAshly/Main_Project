@@ -1,0 +1,444 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,admin templates, admin template, admin dashboard, free tailwind templates, tailwind example">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Dashboard | Add Products</title>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #f5f5f5; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        .error {
+            color: red;
+            font-size: 0.875rem;
+        }
+        
+        .text-success {
+            color: green;
+            font-size: 0.875rem;
+        }
+        
+        /* Additional styles for file input and preview */
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+        
+        .custom-file-input {
+            padding: 10px;
+            background-color: #f0f4f8;
+            border: 1px solid #cbd5e0;
+            border-radius: 5px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+        <!--Container -->
+        <div class="mx-auto bg-grey-400">
+            <!--Screen-->
+            <div class="min-h-screen flex flex-col">
+                <!--Header Section Starts Here-->
+                <header class="bg-nav p-4">
+                    <div class="flex justify-between">
+                        <div class="inline-flex items-center">
+                            <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                            <h1 class="text-white text-2xl">NurtureNest</h1>
+                        </div>
+                        <div class="flex items-center profile-container">
+                            <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                            <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                            <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                                <a href="#">My Profile</a>
+                                <a href="{% url 'logout' %}">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <!--/Header-->
+    
+                <div class="flex flex-1">
+                    <!--Sidebar-->
+                    <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                        <ul class="list-reset">
+                            <li class="sidebar-link">
+                                <i class="fas fa-tachometer-alt mx-2"></i>
+                                <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
+                            </li>
+                            <li class="sidebar-link">
+                                <i class="fas fa-user-check mx-2"></i>
+                                <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
+                            </li>
+                            <li class="sidebar-link">
+                                <i class="fas fa-syringe mx-2"></i>
+                                <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                            </li>
+                            <li class="sidebar-link">
+                                <i class="fas fa-grip-horizontal mx-2"></i>
+                                <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
+                            </li>
+                            <li class="sidebar-link">
+                                <i class="fas fa-users mx-2"></i>
+                                <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
+                            </li>
+    
+                            <li class="sidebar-link">
+                                <i class="fas fa-square-full mx-2"></i>
+                                <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
+                            </li>
+    
+                            <li class="sidebar-link">
+                                <i class="fas fa-square-full mx-2"></i>
+                                <a href="{% url 'ecom_admin_home' %}" class="no-underline">Products manage</a>
+                            </li>
+                        </ul>
+                    </aside>
+                    <!--/Sidebar-->
+                    <!--Main-->
+                   
+               <!--Grid Form-->
+    
+    <main class="flex-1 p-6">
+        <div class="main-content">
+            <div class="flex flex-1 flex-col md:flex-row lg:flex-row mx-2">
+                <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                    <div style="background-color: #e69b95;" class="bg-gray-200 px-2 py-3 border-solid border-gray-200 border-b">
+                        <b>Add Product</b>
+                    </div>
+                    <div class="p-3">
+                        {% if messages %}
+                            <div>
+                                {% for message in messages %}
+                                    <div class="bg-green-300 mb-2 border border-green-300 text-green-600 px-4 py-3 rounded relative" role="alert">
+                                        <strong class="font-bold">{{ message.tags|title }}!</strong>
+                                        <span class="block sm:inline">{{ message }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="max-w-lg mx-auto">
+                            <form class="w-full" method="post" action="{% url 'add_product' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <!-- Category Selection -->
+                                <div class="flex flex-wrap -mx-3 mb-6">
+                                    <div class="w-full px-3">
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
+                                            Category
+                                        </label>
+                                        <select class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                                id="category" name="category" required>
+                                            <option value="">Select Category</option>
+                                            {% for category in categories %}
+                                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Product Name -->
+                                <div class="flex flex-wrap -mx-3 mb-6">
+                                    <div class="w-full px-3">
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="product_name">
+                                            Product Name
+                                        </label>
+                                        <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                               id="product_name" name="product_name" type="text" required>
+                                    </div>
+                                </div>
+
+                                <!-- Price and Stock -->
+                                <div class="flex flex-wrap -mx-3 mb-6">
+                                    <div class="w-full md:w-1/2 px-3">
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="price">
+                                            Price
+                                        </label>
+                                        <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                               id="price" name="price" type="number" step="0.01" required>
+                                    </div>
+                                    <div class="w-full md:w-1/2 px-3">
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="stock">
+                                            Stock
+                                        </label>
+                                        <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                               id="stock" name="stock" type="number" required>
+                                    </div>
+                                </div>
+
+                                <!-- Description Section -->
+                                <div id="descriptions-container">
+                                    <div class="flex flex-wrap -mx-3 mb-6">
+                                        <div class="w-full px-3 flex justify-between items-center">
+                                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                                Product Descriptions
+                                            </label>
+                                            <button type="button" onclick="addDescription()" 
+                                                    class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-green-600 focus:outline-none">
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="description-entry mb-6">
+                                        <div class="flex flex-wrap -mx-3">
+                                            <div class="w-full px-3">
+                                                <!-- Description Title -->
+                                                <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                                       name="description_titles[]" type="text" placeholder="Description Title" required>
+                                                
+                                                <!-- Description Text -->
+                                                <textarea class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                                          name="descriptions[]" rows="4" placeholder="Description" required></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Images Section -->
+                                <div class="flex flex-wrap -mx-3 mb-6">
+                                    <div class="w-full px-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="block text-gray-700 text-sm font-bold">
+                                                Product Images
+                                            </label>
+                                            <button type="button" onclick="addImageInput()" 
+                                                    class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-green-600 focus:outline-none">
+                                                +
+                                            </button>
+                                        </div>
+                                        <div id="images-container">
+                                            <div class="image-entry mb-3">
+                                                <input type="file" class="custom-file-input" name="images[]" accept="image/*" required>
+                                                <div class="image-preview-container mt-2 flex flex-wrap gap-2"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="flex flex-wrap -mx-3 mb-6">
+                                    <div class="w-full px-3">
+                                        <button style="background-color: #e69b95;" type="submit" class="appearance-none block w-full text-white font-bold border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600">
+                                            Add Product
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Function to add new description fields
+        function addDescription() {
+            const container = document.getElementById('descriptions-container');
+            const newDescription = document.createElement('div');
+            newDescription.className = 'description-entry mb-6';
+            newDescription.innerHTML = `
+                <div class="flex flex-wrap -mx-3">
+                    <div class="w-full px-3 relative">
+                        <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                               name="description_titles[]" type="text" placeholder="Description Title" required>
+                        
+                        <textarea class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                  name="descriptions[]" rows="4" placeholder="Description" required></textarea>
+                        
+                        <button type="button" onclick="removeDescription(this)" 
+                                class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:outline-none mt-2 mr-2">
+                            ×
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newDescription);
+        }
+
+        // Function to remove description fields
+        function removeDescription(button) {
+            button.closest('.description-entry').remove();
+        }
+
+        // Function to add new image input
+        function addImageInput() {
+            const container = document.getElementById('images-container');
+            const newImage = document.createElement('div');
+            newImage.className = 'image-entry mb-3 relative';
+            newImage.innerHTML = `
+                <input type="file" class="custom-file-input" name="images[]" accept="image/*" required>
+                <div class="image-preview-container mt-2 flex flex-wrap gap-2"></div>
+                <button type="button" onclick="removeImage(this)" 
+                        class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 focus:outline-none">
+                    ×
+                </button>
+            `;
+            container.appendChild(newImage);
+            
+            // Add event listener for image preview
+            const fileInput = newImage.querySelector('input[type="file"]');
+            fileInput.addEventListener('change', handleImagePreview);
+        }
+
+        // Function to remove image input
+        function removeImage(button) {
+            button.closest('.image-entry').remove();
+        }
+
+        // Function to handle image preview
+        function handleImagePreview(event) {
+            const container = event.target.nextElementSibling;
+            container.innerHTML = ''; // Clear existing previews
+            
+            for (const file of event.target.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('image-preview');
+                    container.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Add event listener to initial image input
+        document.querySelector('input[type="file"]').addEventListener('change', handleImagePreview);
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+
+            if (price <= 0) {
+                alert('Price must be greater than 0');
+                event.preventDefault();
+                return;
+            }
+
+            if (stock < 0) {
+                alert('Stock cannot be negative');
+                event.preventDefault();
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

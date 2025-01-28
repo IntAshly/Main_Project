@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointment Approved</title>
+</head>
+<body>
+    <h1>Your Appointment Has Been Approved</h1>
+    <p>Dear {{ user.get_full_name|default:user.username }},</p>
+    <p>Your appointment has been approved. Here are the details:</p>
+    <ul>
+        <li>Vaccine: {{ appointment.vaccine.vaccine_name }}</li>
+        <li>Health Center: {{ health_center.health_center_name }}</li>
+        <li>Date: {{ appointment.appointment_date }}</li>
+        <li>Time: {{ appointment.appointment_time }}</li>
+    </ul>
+    <p>Thank you for choosing our services.</p>
+</body>
+</html>

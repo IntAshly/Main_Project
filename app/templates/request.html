@@ -1,0 +1,244 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Admin | Requests</title>
+</head>
+<style>
+    .bg-nav {
+        background-color: #4B5563; /* Dark gray for nav background */
+    }
+
+    body {
+        background-color: #f0f4f8; /* Light gray background */
+    }
+
+    .bg-box-color {
+        background-color: #FF8A80; /* Coral color for boxes */
+        border-left-width: 6px; /* Left border width */
+        height: 150px; /* Set height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px; /* Space between boxes */
+        border-left: 6px solid #FF6F61; /* Border color */
+        border-radius: 8px; /* Rounded corners */
+        transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    }
+
+    .bg-box-color:hover {
+        background-color: #FF6F61; /* Slightly darker coral on hover */
+        transform: translateY(-5px); /* Lift effect on hover */
+    }
+
+    .no-underline {
+        text-decoration: none;
+    }
+
+    .text-black {
+        color: black;
+    }
+
+    .font-bold {
+        font-weight: bold;
+    }
+
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        color: #F3F4F6; /* Light gray text */
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .sidebar-link:hover {
+        background-color: #1F2937; /* Darker gray on hover */
+    }
+
+    .main-content {
+        padding: 2rem;
+        background-color: #FFFFFF; /* White main content area */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        border-radius: 8px; /* Rounded corners */
+    }
+
+    .footer {
+        background-color: #374151; /* Darker gray footer */
+        color: white;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .icon-style {
+        font-size: 2rem; /* Larger icons */
+    }
+
+    .box-title {
+        margin-top: 1rem;
+        font-size: 1.25rem; /* Larger text */
+    }
+
+    .box-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .box-container > div {
+        flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+        margin-bottom: 20px; /* Space between rows */
+    }
+
+    @media (max-width: 768px) {
+        .box-container > div {
+            flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+        }
+    }
+</style>
+</head>
+
+<body>
+<!--Container -->
+<div class="mx-auto bg-grey-400">
+    <!--Screen-->
+    <div class="min-h-screen flex flex-col">
+        <!--Header Section Starts Here-->
+        <header class="bg-nav p-4">
+            <div class="flex justify-between">
+                <div class="inline-flex items-center">
+                    <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                    <h1 class="text-white text-2xl">NurtureNest</h1>
+                </div>
+                <div class="flex items-center">
+                    <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                    <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                    <div id="ProfileDropDown" class="rounded hidden shadow-md bg-white absolute mt-12 mr-4 right-0">
+                        <ul class="list-reset">
+                            <li><a href="#" class="no-underline px-4 py-2 block text-black hover:bg-gray-200">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!--/Header-->
+
+        <div class="flex flex-1">
+            <!--Sidebar-->
+            <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                <ul class="list-reset">
+                    <li class="sidebar-link">
+                        <i class="fas fa-tachometer-alt mx-2"></i>
+                        <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
+                    </li>
+                    <li class="sidebar-link">
+                        <i class="fas fa-user-check mx-2"></i>
+                        <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
+                    </li>
+                    <li class="sidebar-link">
+                        <i class="fas fa-syringe mx-2"></i>
+                        <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                    </li>
+                    <li class="sidebar-link">
+                        <i class="fas fa-hospital mx-2"></i>
+                        <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
+                    </li>
+                    <li class="sidebar-link">
+                        <i class="fas fa-users mx-2"></i>
+                        <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
+                    </li>
+
+                    <li class="sidebar-link">
+                        <i class="fas fa-square-full mx-2"></i>
+                        <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
+                    </li>
+                </ul>
+            </aside>
+            <!--/Sidebar-->
+            <!--Main-->
+            <main class="bg-white-500 flex-1 p-3 overflow-hidden">
+
+                <!--Grid Form-->
+                <div class="flex flex-1 flex-col md:flex-row lg:flex-row mx-2">
+                    <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                       <div style="background-color: #e69b95; color: white;" class="px-2 py-3 border-solid border-gray-200 border-b">
+                            Health Center Requests
+                        </div>
+                        <div class="p-3">
+                            <table class="table-responsive w-full rounded">
+                                <thead>
+                                  <tr>
+                                    <th class="border w-1/6 px-4 py-2">Health Center Email</th>
+                                    <th class="border w-1/6 px-4 py-2">Health Center Name</th>
+                                    <th class="border w-1/6 px-4 py-2">Phone No</th>
+                                    <th class="border w-1/6 px-4 py-2">Address</th>
+                                    <th class="border w-1/6 px-4 py-2">City</th>
+                                    <th class="border w-1/6 px-4 py-2">License No</th>
+                                    <th class="border w-1/6 px-4 py-2">Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    {% if health_profiles %}
+                                        {% for profile in health_profiles %}
+                                        <tr>
+                                            <td class="border px-4 py-2">{{ profile.user.email }}</td>
+                                            <td class="border px-4 py-2">{{ profile.health_center_name }}</td>
+                                            <td class="border px-4 py-2">{{ profile.phone }}</td>
+                                            <td class="border px-4 py-2">{{ profile.address }}</td>
+                                            <td class="border px-4 py-2">{{ profile.city }}</td>
+                                            <td class="border px-4 py-2">{{ profile.license_number }}</td>
+                                            <td class="border px-4 py-2">
+                                                <form method="post" action="{% url 'approve_health_center' profile.pk %}" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="text-green-500">Approve</button>
+                                                </form>
+                                                <form method="post" action="{% url 'reject_health_center' profile.pk %}" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="text-red-500">Reject</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td class="border px-4 py-2 text-center font-bold text-black" colspan="7">No Requests</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--/Grid Form-->
+            </main>
+            <!--/Main-->
+        </div>
+        <footer class="footer">
+            <p>Developed by NurtureNest Team</p>
+        </footer>
+    </div>
+</div>
+
+<script>
+    function profileToggle() {
+        var dropdown = document.getElementById("ProfileDropDown");
+        dropdown.classList.toggle("hidden");
+    }
+
+    function sidebarToggle() {
+        var sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("hidden");
+    }
+</script>
+</body>
+
+</html>

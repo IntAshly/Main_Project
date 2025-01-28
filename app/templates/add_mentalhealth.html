@@ -1,0 +1,408 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,admin templates, admin template, admin dashboard, free tailwind templates, tailwind example">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Dashboard | Admin</title>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #f5f5f5; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        .error {
+            color: red;
+            font-size: 0.875rem;
+        }
+        
+        .text-success {
+            color: green;
+            font-size: 0.875rem;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <!--Container -->
+    <div class="mx-auto bg-grey-400">
+        <!--Screen-->
+        <div class="min-h-screen flex flex-col">
+            <!--Header Section Starts Here-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="#">My Profile</a>
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!--/Header-->
+
+            <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-user-check mx-2"></i>
+                            <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-syringe mx-2"></i>
+                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-grip-horizontal mx-2"></i>
+                            <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-users mx-2"></i>
+                            <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
+                        </li>
+
+                        <li class="sidebar-link">
+                            <i class="fas fa-square-full mx-2"></i>
+                            <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
+                        </li>
+                    </ul>
+                </aside>
+                <!--/Sidebar-->
+                <!--Main-->
+                <main class="flex-1 p-6">
+                    <div class="main-content">
+           <!--Grid Form-->
+           <body>
+            <div class="flex flex-1 flex-col md:flex-row lg:flex-row mx-2">
+                <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                    <div style="background-color: #e69b95;" class="bg-gray-200 px-2 py-3 border-solid border-gray-200 border-b">
+                        <b>Add Mental Health Details</b>
+                    </div>
+                    <div class="p-3">
+                        {% if messages %}
+                            <div>
+                                {% for message in messages %}
+                                    <div class="bg-green-300 mb-2 border border-green-300 text-green-600 px-4 py-3 rounded relative" role="alert">
+                                        <strong class="font-bold">{{ message.tags|title }}!</strong>
+                                        <span class="block sm:inline">{{ message }}</span>
+                                        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                            <svg class="fill-current h-6 w-6 text-green" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <form class="w-full" method="post" action="{% url 'add_mentalhealth' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Age Field -->
+                            <div class="flex flex-wrap -mx-3 mb-6">
+                                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                           id="age" name="age" type="text" placeholder="Age (e.g., 0-1 Months, 1 Year Old)">
+                                           <span class="error" id="ageError" style="display:none;">*Invalid Age input</span>
+                                </div>
+                            </div>
+
+                            <!-- Image Upload Field -->
+                    <div class="flex flex-wrap -mx-3 mb-6">
+                        <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                            <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                   id="image" name="image" type="file" accept="image/*">
+                            <span class="error" id="imageError" style="display:none;">*Invalid image upload</span>
+                        </div>
+                    </div>
+        
+                            <!-- Description Fields -->
+                            <div id="descriptionFields">
+                                <div class="flex flex-wrap -mx-3 mb-6 description-group">
+                                    <div class="w-full px-3 mb-6 md:mb-0">
+                                        <textarea class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                                  id="description" name="description[]" rows="5" placeholder="Description"></textarea>
+                                        <span class="error" id="descriptionError" style="display:none;">*Invalid Description input</span>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <!-- Single Add Button -->
+<div class="flex flex-wrap -mx-3 mb-6">
+    <div class="w-full px-3">
+        <button type="button" onclick="addDescriptionField()" 
+                style="background-color: #e69b95;" 
+                class="text-white px-4 py-2 rounded">
+            +
+        </button>
+    </div>
+</div>
+
+        
+<!-- Submit Button -->
+<div class="flex flex-wrap -mx-3 mb-6">
+    <div class="w-full px-3">
+        <button style="background-color: #e69b95;" type="submit" 
+                class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600">
+            Submit
+        </button>
+    </div>
+</div>
+        
+            <script>
+                function addDescriptionField() {
+                    // Create a new div for the description group
+                    const descriptionGroup = document.createElement('div');
+                    descriptionGroup.classList.add('flex', 'flex-wrap', '-mx-3', 'mb-6', 'description-group');
+        
+                    // Create a new textarea for the description
+                    const textareaDiv = document.createElement('div');
+                    textareaDiv.classList.add('w-full', 'px-3', 'mb-6', 'md:mb-0');
+                    const textarea = document.createElement('textarea');
+                    textarea.classList.add('appearance-none', 'block', 'w-full', 'bg-gray-200', 'text-grey-darker', 'border', 'border-gray-200', 'rounded', 'py-3', 'px-4', 'leading-tight', 'focus:outline-none', 'focus:bg-white-500', 'focus:border-gray-600');
+                    textarea.name = "description[]";
+                    textarea.rows = 5;
+                    textarea.placeholder = "Description";
+                    textareaDiv.appendChild(textarea);
+        
+                    // Append the textarea div to the description group
+                    descriptionGroup.appendChild(textareaDiv);
+        
+                    // Append the new description group to the descriptionFields div
+                    document.getElementById('descriptionFields').appendChild(descriptionGroup);
+                }
+            </script>
+
+
+
+            <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+            <script>
+ $(document).ready(function() {
+    $(".error").hide(); // Initially hide all error messages
+
+    // Age Validation
+    $("#age").keyup(validateAge);
+
+    // Description Validation
+    $(document).on("keyup", "#description", validateDescription);
+
+    // Image Upload Validation
+    $("#image").change(validateImage);
+
+    // Function to validate Age
+    function validateAge() {
+        var ageInput = $("#age").val().trim();
+        var ageRegex = /^([0-9]{1,2}|[0-9]{1,2}-[0-9]{1,2})\s*(months?|years?|year\sold's?)\s*(old)?$/i;
+        var repeatedCharsRegex = /^(.)\1+$/; // Check for repeated characters
+        var ageParts = ageInput.split(/\s+/)[0].split('-');
+        
+        if (
+            ageInput.length === 0 || // Empty input
+            ageInput.charAt(0) === ' ' || // Leading space
+            repeatedCharsRegex.test(ageParts.join('')) || // Repeated digits like "111111"
+            !ageRegex.test(ageInput) || // Invalid format
+            (ageParts.length === 2 && (parseInt(ageParts[0]) > 13 || parseInt(ageParts[1]) > 13)) || // Ensure both numbers in range are <= 13
+            (ageParts.length === 1 && parseInt(ageParts[0]) > 13) // Ensure single number is <= 13
+        ) {
+            $("#ageError").show();
+            return false;
+        } else {
+            $("#ageError").hide();
+            return true;
+        }
+    }
+
+    // Function to validate Image Upload (only allows images)
+    function validateImage() {
+        var imageInput = document.getElementById("image");
+        var filePath = imageInput.value;
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i; // Allowed image extensions
+
+        if (!allowedExtensions.exec(filePath)) {
+            $("#imageError").show();
+            imageInput.value = ''; // Clear the input value
+            return false;
+        } else {
+            $("#imageError").hide();
+            return true;
+        }
+    }
+
+    // Function to validate Description
+    function validateDescription() {
+    var description = $("#description").val().trim();
+    
+    // Updated regex: allows letters, spaces, periods, single apostrophes, and commas
+    var descriptionRegex = /^[A-Za-z\s.'\,]+$/; // Only alphabets, space, periods, apostrophes, and commas allowed
+
+    // Check for the following:
+    // 1. No leading space
+    // 2. Valid characters (using regex)
+    // 3. No multiple consecutive dots
+    // 4. No multiple consecutive apostrophes
+    // 5. No multiple consecutive commas
+    if (description.length === 0 || 
+        description.charAt(0) === ' ' || 
+        !descriptionRegex.test(description) || 
+        /\.\.+/.test(description) || 
+        /'{2,}/.test(description) ||   // Check for consecutive apostrophes
+        /,{2,}/.test(description)) {   // Check for consecutive commas
+        $("#descriptionError").show();
+        return false;
+    } else {
+        $("#descriptionError").hide();
+        return true;
+    }
+}
+
+
+    // Final form submission validation
+    $("#submit").click(function(event) {
+        event.preventDefault(); // Prevent form submission
+
+        var ageValid = validateAge();
+        var imageValid = validateImage();
+        var descriptionValid = validateDescription();
+
+        // If all fields are valid, proceed with form submission
+        if (ageValid && imageValid && descriptionValid) {
+            $("form").submit(); // Proceed with form submission
+        }
+    });
+});
+
+            </script>
+            
+
+<script type="text/javascript">
+    function preventBack() {
+        window.history.forward();
+    }
+    setTimeout("preventBack()", 0);
+    window.onunload = function () {
+        null
+    };
+</script>
+</body>
+</html>

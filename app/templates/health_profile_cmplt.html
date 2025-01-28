@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Center Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .left, .right {
+            width: 50%;
+            height: 100%;
+        }
+
+        .left {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe4e1;
+        }
+
+        .left img {
+            width: 500px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 70%;
+            background-color: #ffe4e1;
+        }
+
+        .right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe4e1;
+            padding: 20px;
+        }
+
+        .form-container {
+            width: 70%;
+            height: 95%;
+            max-width: 700px;
+            background-color: #f8c5c5;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ffccd5;
+            border-radius: 8px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input[type="text"], input[type="email"], input[type="tel"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            align-self: center;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .error {
+            color: red;
+            font-size: 0.875rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="left">
+        <img src="{% static 'img/health_profile_cmplt.jpg' %}" alt="Health Center">
+    </div>
+    <div class="right">
+        <div class="form-container">
+            <h2>Complete Health Center Profile</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="health_center_name">Health Center Name:</label>
+                    <input type="text" id="health_center_name" name="health_center_name" value="{{ health_center_name }}" required>
+                    <div id="nameError" class="error">Invalid name. Only letters and spaces are allowed.</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="text" id="email" name="email" value="{{ email }}" required>
+                    <div id="emailError" class="error">Invalid email format.</div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" required>
+                    <div id="phoneError" class="error">Invalid phone number. Only numbers with 10 to 15 digits allowed.</div>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address" required>
+                    <div id="addressError" class="error">Address should be at least 5 characters long.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" required>
+                    <div id="cityError" class="error">Invalid city name. Only letters and spaces are allowed.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="license">License Number:</label>
+                    <input type="text" id="license" name="license" required>
+                    <div id="licenseError" class="error">Invalid license number. Only letters, numbers, and dashes are allowed.</div>
+                </div>
+
+                <button type="submit" id="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Validate each field
+            $("#health_center_name").keyup(validateName);
+            $("#email").keyup(validateEmail);
+            $("#phone").keyup(validatePhone);
+            $("#address").keyup(validateAddress);
+            $("#city").keyup(validateCity);
+            $("#license").keyup(validateLicense);
+
+            function validateName() {
+                var nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+                var name = $("#health_center_name").val().trim();
+                if (name === "" || !nameRegex.test(name)) {
+                    $("#nameError").show();
+                    return false;
+                } else {
+                    $("#nameError").hide();
+                    return true;
+                }
+            }
+
+            function validateEmail() {
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                var email = $("#email").val().trim();
+                if (!emailRegex.test(email)) {
+                    $("#emailError").show();
+                    return false;
+                } else {
+                    $("#emailError").hide();
+                    return true;
+                }
+            }
+
+            function validatePhone() {
+                var phoneRegex = /^[6-9][0-9]{9}$/;
+                var phone = $("#phone").val().trim();
+                if (!phoneRegex.test(phone)) {
+                    $("#phoneError").show();
+                    return false;
+                } else {
+                    $("#phoneError").hide();
+                    return true;
+                }
+            }
+
+            function validateAddress() {
+                var address = $("#address").val().trim();
+                if (address.length < 5) {
+                    $("#addressError").show();
+                    return false;
+                } else {
+                    $("#addressError").hide();
+                    return true;
+                }
+            }
+
+            function validateCity() {
+                var cityRegex = /^[A-Za-z\s-]+$/;
+                var city = $("#city").val().trim();
+                if (!cityRegex.test(city)) {
+                    $("#cityError").show();
+                    return false;
+                } else {
+                    $("#cityError").hide();
+                    return true;
+                }
+            }
+
+            function validateLicense() {
+                var licenseRegex = /^[A-Za-z0-9-]+$/;
+                var license = $("#license").val().trim();
+                if (!licenseRegex.test(license)) {
+                    $("#licenseError").show();
+                    return false;
+                } else {
+                    $("#licenseError").hide();
+                    return true;
+                }
+            }
+
+            // On submit, validate all fields
+            $("#submit").click(function(event) {
+                var validName = validateName();
+                var validEmail = validateEmail();
+                var validPhone = validatePhone();
+                var validAddress = validateAddress();
+                var validCity = validateCity();
+                var validLicense = validateLicense();
+
+                if (!validName || !validEmail || !validPhone || !validAddress || !validCity || !validLicense) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

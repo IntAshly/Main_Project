@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Approved</title>
+</head>
+<body>
+    <h1>Your Appointment Has Been Approved!</h1>
+    <p>Dear {{ user.get_full_name|default:user.username }},</p>
+    <p>Your appointment for the vaccine on <strong>{{ appointment.appointment_time }}</strong> in <strong>{{ appointment.appointment_date }}</strong> at <strong>{{ appointment.health_center.health_center_name }}</strong> has been approved.</p>
+    <p>Thank you for choosing us!</p>
+    <p>Best regards,<br>NurtureNest Team</p>
+</body>
+</html>

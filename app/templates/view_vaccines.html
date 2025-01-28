@@ -1,0 +1,404 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Admin | Requests</title>
+</head>
+<style>
+    .bg-nav {
+        background-color: #4B5563;
+    }
+
+    body {
+        background-color: #f0f4f8;
+    }
+
+    .bg-box-color {
+        background-color: #FF8A80;
+        border-left-width: 6px;
+        height: 150px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px;
+        border-left: 6px solid #FF6F61;
+        border-radius: 8px;
+        transition: background-color 0.3s, transform 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-box-color:hover {
+        background-color: #FF6F61;
+        transform: translateY(-5px);
+    }
+
+    .no-underline {
+        text-decoration: none;
+    }
+
+    .text-black {
+        color: black;
+    }
+
+    .font-bold {
+        font-weight: bold;
+    }
+
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        color: #F3F4F6;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .sidebar-link:hover {
+        background-color: #1F2937;
+    }
+
+    .main-content {
+        padding: 2rem;
+        background-color: #FFFFFF;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .footer {
+        background-color: #374151;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .icon-style {
+        font-size: 2rem;
+    }
+
+    .box-title {
+        margin-top: 1rem;
+        font-size: 1.25rem;
+    }
+
+    .box-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .box-container>div {
+        flex: 1 1 calc(33.333% - 20px);
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .box-container>div {
+            flex: 1 1 calc(100% - 20px);
+        }
+    }
+
+    /* Button styles */
+    .status-button {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .activate {
+        background-color: #28a745; /* Green */
+    }
+
+    .deactivate {
+        background-color: #dc3545; /* Red */
+    }
+
+    .status-button:hover {
+        opacity: 0.8;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Overlay color */
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .modal-content p {
+        color: green;
+        font-weight: bold;
+    }
+
+    .close {
+        cursor: pointer;
+    }
+
+    .profile-container {
+        position: relative; /* Positioning for dropdown */
+        display: flex; /* Align items horizontally */
+        align-items: center; /* Center vertically */
+    }
+    
+    .profile-dropdown {
+        background-color: #4B5563; /* Dark gray background */
+        color: white; /* White text */
+        padding: 10px; /* Padding */
+        text-align: left; /* Align text left */
+        width: 200px; /* Set width */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        border-radius: 8px; /* Rounded corners */
+        position: absolute; /* Position dropdown absolutely */
+        top: 100%; /* Position below the container */
+        right: 0; /* Align to the right of the container */
+        margin-top: 8px; /* Space between text and dropdown */
+        display: none; /* Initially hidden */
+        z-index: 10; /* Ensure dropdown is above other content */
+    }
+    
+    .profile-dropdown a {
+        color: white; /* White text */
+        padding: 10px;
+        display: block;
+        text-decoration: none; /* No underline */
+    }
+    
+    .profile-dropdown a:hover {
+        background-color: #1F2937; /* Darker gray on hover */
+    }
+    
+    .show {
+        display: block; /* Display when shown */
+    }
+    .box-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .box-container > div {
+        flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+        margin-bottom: 20px; /* Space between rows */
+    }
+
+    @media (max-width: 768px) {
+        .box-container > div {
+            flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+        }
+    }
+
+</style>
+
+<body>
+    <!--Container -->
+    <div class="mx-auto bg-grey-400">
+        <!--Screen-->
+        <div class="min-h-screen flex flex-col">
+            <!--Header Section Starts Here-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!--/Header-->
+
+            <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-user-check mx-2"></i>
+                            <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-syringe mx-2"></i>
+                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-grip-horizontal mx-2"></i>
+                            <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-users mx-2"></i>
+                            <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
+                        </li>
+
+                        <li class="sidebar-link">
+                            <i class="fas fa-square-full mx-2"></i>
+                            <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
+                        </li>
+                    </ul>
+                </aside>
+                <!--/Sidebar-->
+              <!--Main-->
+<main class="bg-white-500 flex-1 p-3 overflow-hidden">
+
+    <!--Grid Form-->
+    <main class="flex-1 p-6">
+        <div class="main-content">
+         <!-- Stats Grid Starts Here -->
+<div class="box-container">
+    <div class="flex flex-1 flex-col md:flex-row lg:flex-row mx-2">
+        <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+            <div style="background-color: #e69b95; color: white;" class="px-2 py-3 border-solid border-gray-200 border-b">
+                <h2 class="text-xl font-semibold">Added Vaccines</h2>
+            </div>
+            <div class="p-3">
+                <table class="table-responsive w-full rounded">
+                    <thead>
+                        <tr>
+                            <th class="border w-1/12 px-2 py-1 text-xs">No</th>
+                            <th class="border w-1/6 px-2 py-1 text-xs">Vaccine Name</th>
+                            <th class="border w-1/6 px-2 py-1 text-xs">Batch Number</th>
+                            <th class="border w-1/6 px-2 py-1 text-xs">Age Group</th>
+                            <th class="border w-1/6 px-2 py-1 text-xs">Stock</th>
+                            <th class="border w-1/6 px-6 py-1 text-xs">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vaccine in vaccines %}
+                        <tr>
+                            <td class="border px-2 py-1 text-xs">{{ forloop.counter }}</td>
+                            <td class="border px-2 py-1 text-xs">{{ vaccine.vaccine_name }}</td>
+                            <td class="border px-2 py-1 text-xs">{{ vaccine.batch_number }}</td>
+                            <td class="border px-2 py-1 text-xs">{{ vaccine.age_group }}</td>
+                            <td class="border px-2 py-1 text-xs">{{ vaccine.stock }}</td>
+                            <td class="border px-2 py-1 text-xs">
+                                <div class="flex space-x-2">             
+                                <a href="{% url 'view_vaccine_details' vaccine.vaccine_id %}">
+                                     <button type="submit" class="status-button activate"><i class="fas fa-eye"></i></button>
+                                </a>
+                                &nbsp;&nbsp;
+                                <a href="#">
+                                    <button type="submit" class="status-button activate"><i class="fas fa-edit"></i></button>
+                                </a>
+                             &nbsp;&nbsp;
+                               <a href="{% url 'delete_vaccine' vaccine.vaccine_id %}">
+                                    <button type="submit" class="status-button deactivate">X</button>
+                               </a>
+                               </div>
+                            </td>
+
+
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">No vaccines available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/Grid Form-->
+
+    </main>
+    <!--/Main-->
+
+<br><br><br><br><br><br><br><br><br>
+            
+        </div>
+
+    </div>
+<!--Footer-->
+<footer class="footer">
+    <p>Developed by <b>NurtureNest</b></p>
+</footer>
+<!--/Footer-->
+    <!-- Pop-up Modal -->
+    <div id="popupModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Parent's status has been updated successfully.</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Toggle sidebar
+        function sidebarToggle() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // Toggle profile dropdown
+        function profileToggle() {
+            const profileDropdown = document.getElementById('ProfileDropDown');
+            profileDropdown.classList.toggle('hidden');
+            profileDropdown.classList.toggle('show');
+        }
+
+        // Modal functionality
+        var modal = document.getElementById("popupModal");
+        var closeBtn = document.getElementsByClassName("close")[0];
+
+        closeBtn.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Function to show the modal
+        function showModal() {
+            modal.style.display = "block";
+        }
+    </script>
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () {
+            null
+        };
+    </script>
+</body>
+
+</html>

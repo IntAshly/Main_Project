@@ -1,0 +1,286 @@
+{% load socialaccount %}
+{% providers_media_js %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        
+        .left, .right {
+            width: 50%;
+            height: 100%;
+        }
+
+        .left {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        
+        .left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe4e1;
+            padding: 20px;
+        }
+
+        .form-container {
+            width: 60%;
+            max-width: 500px;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ffccd5;
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: none;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding-left: 40px;
+            font-size: 16px;
+        }
+        
+        .form-group input[type="email"] {
+            background-image: url('{% static "img/email.png" %}');
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            background-size: 20px 20px;
+        }
+        
+        .form-group input[type="password"] {
+            background-image: url('{% static "img/password.png" %}');
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            background-size: 20px 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 30px;
+            height: 50px;
+            width: 200px;
+            color: #fff;
+            background-color: #f55b79;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            background-color: #f55b79;
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #d1465e;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        
+        .login-with {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .login-with p {
+            margin-bottom: 10px;
+        }
+
+        .login-links {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .login-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .login-link.facebook {
+            background-color: #3b5998;
+        }
+        
+        .login-link.google {
+            background-color: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            justify-content: center; 
+            width: 180px; 
+            padding: 10px;
+            text-align: center; 
+        }
+
+        .login-link img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+        
+        h2 {
+            color: #f55b79;
+            font-weight: bold;
+        }
+        
+        .register-link {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        /* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Overlay color */
+}
+
+.modal-content {
+    background-color: #28a745; /* Green background */
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal-content p {
+    color: white; /* White text */
+    font-weight: bold; /* Bold text */
+}
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+    </style>
+</head>
+<body>
+    <div class="left">
+        <img src="{% static 'img/login.jpg' %}" alt="Login Image">
+    </div>
+    <div class="right">
+        <div class="form-container">
+            <center><h2>Login to NurtureNest</h2></center><br>
+            {% if error_message %}
+            <div class="alert alert-danger">
+                {{ error_message }}
+            </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember_me" name="remember_me">
+                    <label for="remember_me">Remember me</label>
+                    <span style="flex: 1;"></span>
+                    <a href="{% url 'forgot_password' %}" class="forget-link">Forgot password?</a>
+                </div>
+                <center><button type="submit" class="btn btn-primary">Login</button></center>
+            </form>
+            <div class="login-with">
+                <p><strong>OR</strong></p>
+                <div class="login-links">
+                     <a href="{% provider_login_url 'google' %}" class="login-link google">
+                                <img src="{% static 'img/google.png' %}" alt="Google"> Google
+                            </a> 
+                </div>
+                <div class="register-link">
+                    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Remove the Success Modal section -->
+
+    <script>
+        // Remove the existing script for handling messages
+    </script>
+</body>
+</html>

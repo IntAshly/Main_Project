@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,admin templates, admin template, admin dashboard, free tailwind templates, tailwind example">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Dashboard | Admin</title>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #f5f5f5; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        .error {
+            color: red;
+            font-size: 0.875rem;
+        }
+        
+        .text-success {
+            color: green;
+            font-size: 0.875rem;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <!--Container -->
+    <div class="mx-auto bg-grey-400">
+        <!-- Include your existing header and sidebar -->
+
+        <!--Main-->
+        <main class="bg-white-500 flex-1 p-3 overflow-hidden">
+            <div class="flex flex-1 flex-col md:flex-row lg:flex-row mx-2">
+                <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                    <div style="background-color: #e69b95;" class="bg-gray-200 px-2 py-3 border-solid border-gray-200 border-b">
+                        <span class="text-white font-bold">Edit Vaccine Details</span>
+                        
+                    </div>
+                    <div class="p-3"
+                       class="w-full" method="post">
+                            {% csrf_token %}
+                            <div class="flex flex-wrap -mx-3 mb-6">
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Vaccine Name
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="vaccine_name" type="text" value="{{ vaccine.vaccine_name }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Manufacturer
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="manufacturer" type="text" value="{{ vaccine.manufacturer }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Batch Number
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="batch_number" type="text" value="{{ vaccine.batch_number }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Date of Manufacture
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="date_manufacture" type="date" value="{{ vaccine.date_manufacture|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Expiry Date
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="expiry_date" type="date" value="{{ vaccine.expiry_date|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Age Group
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="age_group" type="text" value="{{ vaccine.age_group }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Stock
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="stock" type="number" value="{{ vaccine.stock }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Indications
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="indications" type="text" value="{{ vaccine.indications }}" required>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6">
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Payment Type
+                                    </label>
+                                    <select name="free_or_paid" class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        onchange="toggleRateField()">
+                                        <option value="free" {% if vaccine.free_or_paid == 'free' %}selected{% endif %}>Free</option>
+                                        <option value="paid" {% if vaccine.free_or_paid == 'paid' %}selected{% endif %}>Paid</option>
+                                    </select>
+                                </div>
+                                <div class="w-full md:w-1/2 px-3 mb-6" id="rate-field" {% if vaccine.free_or_paid != 'paid' %}style="display:none"{% endif %}>
+                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1">
+                                        Rate
+                                    </label>
+                                    <input class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600"
+                                        name="rate" type="number" value="{{ vaccine.rate }}">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 mr-2">
+                                    Save Changes
+                                </button>
+                                <a href="{% url 'view_vaccine_details' vaccine.id %}" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleRateField() {
+            const rateField = document.getElementById('rate-field');
+            const paymentType = document.querySelector('select[name="free_or_paid"]').value;
+            rateField.style.display = paymentType === 'paid' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

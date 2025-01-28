@@ -1,0 +1,345 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,admin templates, admin template, admin dashboard, free tailwind templates, tailwind example">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <title>Dashboard | HealthCenter</title>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .bg-box-color {
+            background-color: #e69b95; /* Coral color for boxes */
+            border-left-width: 6px; /* Left border width */
+            height: 150px; /* Set height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px; /* Space between boxes */
+            border-left: 6px solid #FF6F61; /* Border color */
+            border-radius: 8px; /* Rounded corners */
+            transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        .bg-box-color:hover {
+            background-color: #FF6F61; /* Slightly darker coral on hover */
+            transform: translateY(-5px); /* Lift effect on hover */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #FFFFFF; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        .circle-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <!--Container -->
+    <div class="mx-auto bg-grey-400">
+        <!--Screen-->
+        <div class="min-h-screen flex flex-col">
+            
+            <!--Header Section Starts Here-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                   
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">{{ health_center_name }}</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="{% url 'view_healthprofile' %}">My Profile</a>
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!--/Header-->
+
+            <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'health_home' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-syringe mx-2"></i>
+                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-eye mx-2"></i>
+                            <a href="{% url 'vaccine_request_success' %}" class="no-underline">View Vaccines</a>
+                        </li>
+                        
+                        <li class="sidebar-link">
+                            <i class="fab fa-uikit mx-2"></i>
+                            <a href="{% url 'manage_appointments' %}" class="no-underline">Manage Appointments</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-upload"></i> &nbsp;&nbsp;
+                           <a href="{% url 'upload_image' %}" class="no-underline">Upload Image</a>
+                        </li>
+                    </ul>
+                </aside>
+                <!--/Sidebar-->
+                <!--Main-->
+                <!--Grid Form-->
+  <main class="flex-1 p-6">
+    <div class="main-content">
+        <!-- Stats Grid Starts Here -->
+        <div class="box-container">
+            <div class="flex flex-1 flex-col md:flex-row lg:flex-row mx-2">
+                <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                    <div style="background-color: #e69b95; color: white;" class="px-2 py-3 border-solid border-gray-200 border-b">
+                        <center><h2 class="text-xl font-semibold">Added Vaccines</h2></center>
+                    </div>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="flex justify-center mb-6">
+                            <div class="w-full md:w-1/2 px-3">
+                               <br><br> <label for="vaccine_image" class="block text-gray-700 text-sm font-bold mb-2">Upload Vaccine Image:</label>
+                                <input 
+                                    class="appearance-none block w-full bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600" 
+                                    id="vaccine_image" name="vaccine_image" type="file" accept="image/*" required>
+                                <span class="error" id="imageError" style="display:none;">*Please upload a valid image</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap -mx-3 mb-6">
+                            <div class="w-full px-3">
+                                <button 
+                                    style="background-color: #e69b95;" 
+                                    type="submit" 
+                                    class="appearance-none block w-1/2 mx-auto bg-gray-200 text-grey-darker border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white-500 focus:border-gray-600">
+                                    Upload the Image
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    
+               </div>     
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+    <!--/Grid Form--></div></div>
+                 
+   
+           
+
+            <!--Footer-->
+            <footer class="footer">
+                <p>&copy; 2024 NurtureNest. All rights reserved.</p>
+            </footer>
+            <!--/Footer-->
+        </div>
+    </div>
+    <!-- Scripts -->
+   
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+document.querySelector('form').onsubmit = function(event) {
+    event.preventDefault();
+
+    let formData = new FormData(this);
+    fetch("{% url 'upload_image' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: data.error,
+            });
+        } else {
+            // Display the vaccine details with image in the center and improved formatting
+            Swal.fire({
+                html: `
+                    <h3 style="text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 20px; color: #4a4a4a;">Vaccine Details</h3>
+                    
+                    <!-- Image at center -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="${data.image_url}" alt="Vaccine Image" 
+                             style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto;">
+                    </div>
+
+                    <!-- Vaccine details neatly formatted -->
+                    <div style="max-width: 600px; margin: 0 auto; text-align: left; font-size: 16px; line-height: 1.8; padding: 20px; background-color: #f3f4f7; border-radius: 12px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                        <p style="margin: 10px 0;"><strong style="color: #333; font-size: 17px;">Vaccine Name:</strong> <span style="color: #555;">${data.vaccine_name}</span></p>
+                        <p style="margin: 10px 0;"><strong style="color: #333; font-size: 17px;">Age Group:</strong> <span style="color: #555;">${data.age_group}</span></p>
+                        <p style="margin: 10px 0;"><strong style="color: #333; font-size: 17px;">Purpose:</strong> <span style="color: #555;">${data.purpose}</span></p>
+                        <p style="margin: 10px 0;"><strong style="color: #333; font-size: 17px;">Disadvantages:</strong> <span style="color: #555;">${data.disadvantages}</span></p>
+                    </div>
+                `,
+                width: '650px', // Adjust the popup width to give a more spacious layout
+                padding: '20px', // Padding for better spacing inside the popup
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
+
+    </script>
+    
+    
+
+
+    <script>
+        function sidebarToggle() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("hidden");
+        }
+        function profileToggle() {
+            const profileDropdown = document.getElementById('ProfileDropDown');
+            profileDropdown.classList.toggle('hidden');
+            profileDropdown.classList.toggle('show');
+        }
+    </script>
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () {
+            null
+        };
+    </script>
+</body>
+
+</html>

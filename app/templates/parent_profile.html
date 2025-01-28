@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NurtureNest - Profile Completion of Child</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/lightbox/css/lightbox.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffe4e1;
+        }
+        .container-fluid.page-header {
+            background-color: #ffe4e1;
+        }
+        .bg-light.rounded.p-5.mx-auto {
+            background-color: #ffffff;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 2rem;
+        }
+        .form-label,
+        .form-control {
+            font-weight: bold;
+        }
+    </style>   
+</head>
+
+<body>
+
+        <!-- Navbar start -->
+        <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
+            <div class="container px-0">
+                <nav class="navbar navbar-light navbar-expand-xl py-3">
+                    <a href="{% url 'index' %}" class="navbar-brand">
+                        <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
+                    </a>
+                    <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                        <span class="fa fa-bars text-primary"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarCollapse">
+                        <div class="navbar-nav mx-auto">
+                            <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+                            <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
+                            <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
+                            <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
+                            <a href="{% url 'notification' %}" class="nav-item nav-link position-relative">
+                                <i class="fas fa-bell"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ unread_notifications_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                            
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
+                                   Hey, {{ user.get_full_name|default:user.username }}
+                                </a>
+                                <div class="dropdown-menu m-0 bg-secondary rounded-0">
+                                    <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
+                                    <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-search btn btn-primary btn-md-square rounded-circle" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-white"></i></button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- Navbar End -->
+
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s" style="padding-top: 7rem; padding-bottom: 7rem;">
+        <div class="container text-right py-5">
+            <h1 class="display-2 text-white mb-4">Profile Completion</h1>
+        <br><br></div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Profile Form Start -->
+    <div class="container py-5">
+        <div class="bg-light rounded p-5 mx-auto" style="max-width: 800px;">
+            <div class="text-center wow fadeIn mb-5" data-wow-delay="0.1s">
+                <h4 class="display-6">My Profile</h4>
+            </div>
+            <form id="profileForm">
+                <div class="row g-3">
+                    <!-- Parent Details Section -->
+                    <div class="col-md-6">
+                        <label for="parentName" class="form-label">Parent Name</label>
+                        <input type="text" class="form-control" id="parentName" value="{{ user.get_full_name }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="parentEmail" class="form-label">Parent Email</label>
+                        <input type="email" class="form-control" id="parentEmail" value="{{ user.email }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="contactNo" class="form-label">Contact No</label>
+                        <input type="text" class="form-control" id="contactNo" value="{{ parent_profile.contact_no }}" placeholder="Enter Contact No" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Parent No </label>
+                        <input type="text" class="form-control" id="parentno" value="{{ parent_profile.parentno }}" placeholder="Enter Address" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" value="{{ parent_profile.address }}" placeholder="Enter Address" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="place" class="form-label">Place</label>
+                        <input type="text" class="form-control" id="place" value="{{ parent_profile.place }}" placeholder="Enter Place" readonly>
+                    </div>
+                </div>
+                
+                <!-- Child Details Section -->
+                <div class="text-center wow fadeIn mb-5 mt-5" data-wow-delay="0.1s">
+                    <h4 class="display-6" style="font-size: 1.9rem">Child Details</h4>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="childName" class="form-label">Child Name</label>
+                        <input type="text" class="form-control" id="childName" value="{{ child_profile.child_name }}" placeholder="Enter Child Name" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="dob" class="form-label">Date of Birth</label>
+                        <input type="text" class="form-control" id="dob" value="{{ child_profile.dob }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="gender" class="form-label">Gender</label>
+                        <input type="text" class="form-control" id="gender" value="{{ child_profile.gender }}" placeholder="Enter Gender" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="bloodGroup" class="form-label">Blood Group</label>
+                        <input type="text" class="form-control" id="bloodGroup" value="{{ child_profile.blood_group }}" placeholder="Enter Blood Group" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="birthWeight" class="form-label">Birth Weight (kg)</label>
+                        <input type="text" class="form-control" id="birthWeight" value="{{ child_profile.birth_weight }}" step="0.01" placeholder="Enter Birth Weight" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="birthHeight" class="form-label">Birth Height (kg)</label>
+                        <input type="text" class="form-control" id="birthHeight" value="{{ child_profile.birth_height}}" step="0.01" placeholder="Enter Birth Weight" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="age" class="form-label">Current Age</label>
+                        <input type="text" class="form-control" id="age" value="{{ child_profile.age}}" step="0.01" placeholder="Enter Birth Weight" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="currentWeight" class="form-label">Current Weight (kg)</label>
+                        <input type="text" class="form-control" id="currentWeight" value="{{ child_profile.current_weight }}" step="0.01" placeholder="Enter Current Weight" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="currentHeight" class="form-label">Current Height (cm)</label>
+                        <input type="text" class="form-control" id="currentHeight" value="{{ child_profile.current_height }}" step="0.01" placeholder="Enter Current Height" readonly>
+                    </div>
+                </div>
+
+                <!-- Vaccination Records Section -->
+                <div class="text-center wow fadeIn mb-5 mt-5" data-wow-delay="0.1s">
+                    <h4 class="display-6" style="font-size: 1.9rem">Vaccination Records</h4>
+                </div>
+                <div class="row g-3">
+                    {% for vaccine in vaccines %}
+                    <div class="col-md-6">
+                        <label for="vaccine{{ forloop.counter }}" class="form-label">Latest Vaccine Taken</label>
+                        <input type="text" class="form-control" id="vaccine{{ forloop.counter }}" value="{{ vaccine.name }}" readonly><br>
+                        <label for="vaccine{{ forloop.counter }}" class="form-label">Date of Latest Vaccine Taken</label>
+                        <input type="text" class="form-control" id="vaccine{{ forloop.counter }}" value="{{ vaccine.date }}" readonly><br>
+                        <label for="vaccine{{ forloop.counter }}" class="form-label">Weight of child while Vaccine Taken</label>
+                        <input type="text" class="form-control" id="vaccine{{ forloop.counter }}" value="{{ vaccine.weight }}" readonly><br>
+                        <label for="vaccine{{ forloop.counter }}" class="form-label">Place of  Vaccine Taken</label>
+                        <input type="text" class="form-control" id="vaccine{{ forloop.counter }}" value="{{ vaccine.place }}" readonly>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <p>No vaccination records found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-left mt-4">
+                    <a href="{% url 'edit_parentview' %}" class="btn btn-primary btn-lg">Edit Profile</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Profile Form End -->
+
+            <!-- Copyright Start -->
+            <div class="container-fluid copyright bg-dark py-4">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>NurtureNest</a>, All right reserved.</span>
+                        </div>
+                        <div class="col-md-6 my-auto text-center text-md-end text-white">
+                            <!--/*** This template is free as long as you keep the below author’s credit link/attribution link/backlink. ***/-->
+                            <!--/*** If you'd like to use the template without the below author’s credit link/attribution link/backlink, ***/-->
+                            <!--/*** you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". ***/-->
+                         <a class="border-bottom" href="#"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Copyright End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="{% static 'lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'lib/counterup/counterup.min.js' %}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'lib/lightbox/js/lightbox.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
