@@ -260,8 +260,8 @@
                     })
                     .then(response => response.json())
                     .then(data => {
+                        const icon = button.querySelector('i');
                         if (data.status === 'success') {
-                            const icon = button.querySelector('i');
                             icon.classList.remove('far');
                             icon.classList.add('fas');
                             
@@ -282,12 +282,75 @@
                                 }
                             });
                         } else {
+                            // Toast notification for already added to wishlist
+                            Swal.fire({
+                                position: 'top-end',
+                                icon: 'info',
+                                title: 'Item is already in wishlist',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                width: '20em',
+                                toast: true,
+                                showClass: {
+                                    popup: 'animate__animated animate__slideInRight'
+                                },
+                                hideClass: {
+                                    popup: 'animate__animated animate__slideOutRight'
+                                }
+                            });
+                        }
+                    });
+                }
+
+                function addToCart(productId) {
+                    fetch(`/cart/add/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Success notification for adding to cart
+                            Swal.fire({
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Added to cart',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                width: '20em',
+                                toast: true,
+                                showClass: {
+                                    popup: 'animate__animated animate__slideInRight'
+                                },
+                                hideClass: {
+                                    popup: 'animate__animated animate__slideOutRight'
+                                }
+                            });
+                        } else {
                             Swal.fire({
                                 icon: 'info',
                                 title: 'Note',
                                 text: data.message
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Something went wrong!',
+                            width: '20em',
+                            toast: true,
+                            showClass: {
+                                popup: 'animate__animated animate__slideInRight'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__slideOutRight'
+                            }
+                        });
                     });
                 }
 
