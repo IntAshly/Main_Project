@@ -88,8 +88,19 @@ urlpatterns = [
      path('edit_productdet/<int:product_id>/', views.edit_productdet, name='edit_productdet'),
     path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
     path('delete_product_image/<int:image_id>/', views.delete_product_image, name='delete_product_image'),
-     path('products/', views.products_view, name='products'),
+    
+    path('products/', views.products_view, name='products'),
     path('product/<int:product_id>/', views.product_detail_view, name='product_detail'),
+    path('cart/', views.cart_view, name='cart'),
+    path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/update/<int:item_id>/', views.update_cart_quantity, name='update_cart_quantity'),
+    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/place-order/', views.place_order, name='place_order'),
+    
+    path('wishlist/', views.wishlist_view, name='wishlist'),
+    path('wishlist/toggle/<int:product_id>/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

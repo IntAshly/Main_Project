@@ -35,7 +35,7 @@
         }
 
         .product-container {
-            background:rgb(252, 229, 229);  /* Soft pink background that matches the theme */
+            background: white;
             border-radius: 20px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             padding: 30px;
@@ -45,14 +45,13 @@
 
         .product-image-container {
             position: relative;
-            background: #ffffff;
+            background: #f8f9fa;
             padding: 30px;
             border-radius: 15px;
-            height: 400px;  /* Reduced height */
+            height: 500px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 50px;  /* Added margin to move image down */
         }
 
         .product-image {
@@ -221,7 +220,7 @@
             border: none;
         }
         .back-to-products {
-            background:rgb(235, 141, 132);
+            background: rgb(235, 141, 132);
             color: white;
             padding: 8px 20px;
             border-radius: 10px;
@@ -236,7 +235,7 @@
         }
     
         .back-to-products:hover {
-            background:rgb(245, 147, 140);
+            background: rgb(245, 147, 140);
             transform: translateY(-2px);
             color: white;
         }
@@ -246,6 +245,39 @@
             justify-content: flex-end;
             width: 100%;
             padding-right: 30px;
+        }
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #f0f7ff;
+            color: #2c5282;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: -5px;
+        }
+    
+        .category-badge i {
+            font-size: 0.8rem;
+        }
+        .price-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+    
+        .price-label {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+    
+        .product-price {
+            font-size: 1.8rem;
+            color: #e74c3c;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -321,8 +353,15 @@
         </div>
         <div class="product-container">
             <div class="row">
+                <div class="col-12 mb-4">
+                    <h4 class="product-title">{{ product.product_name }}</h4>
+                    <div class="category-badge mb-3">
+                        <i class="fas fa-tag me-2"></i>
+                        {{ product.category.name }}
+                    </div>
+                </div>
                 <!-- Product Images -->
-                <div class="col-lg-6 mb-4">
+               <div class="col-lg-6 mb-4">
                     <div class="product-image-container">
                         {% for image in product.images.all %}
                         <img src="{{ image.image.url }}" 
@@ -348,8 +387,8 @@
                 <!-- Product Details -->
                 <div class="col-lg-6">
                     <div class="product-details">
-                        <h1 class="product-title">{{ product.product_name }}</h1>
-                        <div class="product-price">₹{{ product.price }}</div>
+                        
+                        <div class="product-price"><b>Price : </b>₹{{ product.price }}</div>
 
                         {% for description in product.descriptions.all %}
                         <div class="description-item">
@@ -363,21 +402,20 @@
                             <button class="qty-btn" onclick="updateQty(-1)">-</button>
                             <span id="qty-value" class="qty-value">1</span>
                             <button class="qty-btn" onclick="updateQty(1)">+</button>
+                            {% comment %} <span class="stock-info">(Stock: {{ product.stock }})</span> {% endcomment %}
                         </div>
 
                         <div class="action-buttons">
-                            <button class="btn btn-outline-primary btn-cart" onclick="addToCart({{ product.id }})">
-                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                            </button>
-                            {% if product.stock > 0 %}
+                            <form id="addToCartForm" method="POST" action="{% url 'add_to_cart' product.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" id="quantity-input" value="1">
+                                <button type="submit" class="btn btn-outline-primary btn-cart" >
+                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                </button>
+                            </form>
                             <button class="btn btn-primary btn-cart" onclick="buyNow({{ product.id }})">
                                 <i class="fas fa-bolt me-2"></i>Buy Now
                             </button>
-                            {% else %}
-                            <button class="btn-out-of-stock" disabled>
-                                <i class="fas fa-times-circle me-2"></i>Out of Stock
-                            </button>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -397,34 +435,150 @@
         if (newQty >= 1 && newQty <= maxStock) {
             currentQty = newQty;
             document.getElementById('qty-value').textContent = currentQty;
+            document.getElementById('quantity-input').value = currentQty;
         }
     }
 
-        function showImage(index) {
-            currentImageIndex = index;
-            document.querySelectorAll('.product-image').forEach(img => img.classList.add('d-none'));
-            document.getElementById(`image-${index}`).classList.remove('d-none');
-            document.querySelectorAll('.dot').forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
+    function showImage(index) {
+        currentImageIndex = index;
+        document.querySelectorAll('.product-image').forEach(img => img.classList.add('d-none'));
+        document.getElementById(`image-${index}`).classList.remove('d-none');
+        document.querySelectorAll('.dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+
+    function changeImage(direction) {
+        const newIndex = (currentImageIndex + direction + totalImages) % totalImages;
+        showImage(newIndex);
+    }
+
+    function buyNow(productId) {
+        // Add logic to handle buy now with currentQty
+        alert(`Proceeding to checkout with ${currentQty} item(s)!`);
+    }
+
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'cart' %}";
+            } else {
+                throw new Error('Failed to add to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to add item to cart');
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function addToCart(productId) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Success notification for adding to cart
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Added to cart',
+                showConfirmButton: false,
+                timer: 1500,
+                width: '20em',
+                toast: true,
+                showClass: {
+                    popup: 'animate__animated animate__slideInRight'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__slideOutRight'
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'info',
+                title: 'Note',
+                text: data.message
             });
         }
+    });
+}
 
-        function changeImage(direction) {
-            const newIndex = (currentImageIndex + direction + totalImages) % totalImages;
-            showImage(newIndex);
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
+    }
+    return cookieValue;
+}
+</script>
 
-        function addToCart(productId) {
-            // Add AJAX call to handle add to cart with currentQty
-            alert(`Added ${currentQty} item(s) to cart!`);
-        }
+  <!-- Copyright Start -->
+  <div class="container-fluid copyright bg-dark py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>nurturenest@gmail.com</a>, All right reserved.</span>
+            </div>
+            <div class="col-md-6 my-auto text-center text-md-end text-white">
+                
+             
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Copyright End -->
 
-        function buyNow(productId) {
-            // Add logic to handle buy now with currentQty
-            alert(`Proceeding to checkout with ${currentQty} item(s)!`);
+     <!-- Template Javascript -->
+     <script src="js/main.js"></script>
+    </body>
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward();
         }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () {
+            null
+        };
     </script>
-
-    <!-- Keep the same scripts as products.html -->
 </body>
 </html>

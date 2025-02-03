@@ -58,6 +58,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from dateutil.relativedelta import relativedelta
 from .models import Category, Product, ProductDescription, ProductImage
 from django.db import transaction
+from django.http import JsonResponse
+from .models import CartItem, Product
+from django.views.decorators.http import require_POST
+from .models import Wishlist
 
 def register_view(request):
     if request.method == 'POST':
@@ -1816,5 +1820,126 @@ def products_view(request):
     return render(request, 'products.html', {'products': products})
 
 def product_detail_view(request, product_id):
-    product = get_object_or_404(Product.objects.prefetch_related('images', 'descriptions'), id=product_id)
+    product = get_object_or_404(
+        Product.objects.select_related('category').prefetch_related('images', 'descriptions'), 
+        id=product_id
+    )
     return render(request, 'product_detail.html', {'product': product})
+
+@login_required
+def cart_view(request):
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    total_price = sum(item.get_total_price() for item in cart_items)
+    
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+    }
+    return render(request, 'cart.html', context)
+
+@require_POST
+@login_required
+def add_to_cart(request, product_id):
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        product = get_object_or_404(Product, id=product_id)
+        
+        cart_item, created = CartItem.objects.get_or_create(
+            user=request.user,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+        
+        return redirect('cart')
+    except Exception as e:
+        print(f"Error adding to cart: {e}")  # For debugging
+        return JsonResponse({'error': 'Failed to add to cart'}, status=400)
+
+@require_POST
+@login_required
+def update_cart_quantity(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+    quantity = int(request.POST.get('quantity', 1))
+    
+    # Ensure quantity is at least 1
+    if quantity < 1:
+        quantity = 1
+    
+    # Check if requested quantity exceeds stock
+    if quantity > cart_item.product.stock:
+        return JsonResponse({
+            'error': 'Maximum stock reached',
+            'max_stock_reached': True
+        }, status=400)
+    
+    cart_item.quantity = quantity
+    cart_item.save()
+    
+    return JsonResponse({
+        'total_price': cart_item.get_total_price(),
+        'cart_total': sum(item.get_total_price() for item in CartItem.objects.filter(user=request.user)),
+        'max_stock_reached': quantity >= cart_item.product.stock
+    })
+    
+@require_POST
+@login_required
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+    cart_item.delete()
+    return redirect('cart')
+
+@login_required
+def place_order(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    if cart_items.exists():
+        # Add your order processing logic here
+        cart_items.delete()  # Clear cart after order
+        return JsonResponse({'success': True, 'message': 'Order placed successfully!'})
+    return JsonResponse({'success': False, 'message': 'Cart is empty!'})
+
+def toggle_wishlist(request, product_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Please login first'})
+    
+    product = get_object_or_404(Product, id=product_id)
+    wishlist_item = Wishlist.objects.filter(user=request.user, product=product)
+    
+    if wishlist_item.exists():
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Product is already in your wishlist'
+        })
+    
+    Wishlist.objects.create(user=request.user, product=product)
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Product added to wishlist'
+    })
+
+@require_POST
+@login_required
+def remove_from_wishlist(request, product_id):
+    try:
+        wishlist_item = Wishlist.objects.get(
+            user=request.user,
+            product_id=product_id
+        )
+        wishlist_item.delete()
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Product removed from wishlist'
+        })
+    except Exception as e:
+        print(f"Error removing from wishlist: {e}")  # For debugging
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+
+def wishlist_view(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    return render(request, 'wishlist.html', {'products': [item.product for item in wishlist_items]})

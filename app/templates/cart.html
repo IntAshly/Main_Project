@@ -1,0 +1,495 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NurtureNest - Ultimate Baby Health and Growth Companion - Parent Home</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/lightbox/css/lightbox.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+
+    <style>
+        body {
+            background-color: #ffe4e1;
+        }
+
+        .cart-container {
+            background: rgb(252, 229, 229);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 1200px;
+        }
+
+        .cart-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #FF6F61;
+        }
+
+        .cart-items-container {
+            display: flex;
+            gap: 30px;
+        }
+
+        .cart-items {
+            flex: 2;
+        }
+
+        .cart-summary {
+            flex: 1;
+            position: sticky;
+            top: 30px;
+            align-self: flex-start;
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .cart-item-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .cart-item-price {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .quantity-btn {
+            background: #f8f9fa;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #e9ecef;
+        }
+
+        .quantity-btn:disabled {
+            background: #e9ecef;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .quantity-value {
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ff6b81;
+        }
+
+        .cart-summary-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .summary-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .total-row {
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .total-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .total-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .place-order-btn {
+            background: #FF6F61;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .place-order-btn:hover {
+            background: #ff5447;
+            transform: translateY(-2px);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .empty-cart i {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .empty-cart p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .stock-status {
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .out-of-stock {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .in-stock {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+      <!-- Navbar start -->
+      <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
+        <div class="container px-0">
+            <nav class="navbar navbar-light navbar-expand-xl py-3">
+                <a href="{% url 'index' %}" class="navbar-brand">
+                    <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+                        <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
+                        <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
+                        <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
+                        
+                        <!-- Replace the existing notification link with this -->
+<a href="{% url 'notification' %}" class="nav-item nav-link position-relative">
+    <i class="fas fa-bell"></i>
+    {% if unread_notifications_count > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ unread_notifications_count }}
+        </span>
+    {% endif %}
+</a>
+          
+<div class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fa fa-hand-holding-heart"></i>
+    </a>
+    <div class="dropdown-menu m-0 bg-secondary rounded-0">
+        <a href="{% url 'view_feedingchart' %}" class="dropdown-item">FeedingChart</a>
+        <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
+    </div>
+</div>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
+                                Hey,{{ user.get_full_name|default:user.username }}
+                            </a>
+                            <div class="dropdown-menu m-0 bg-secondary rounded-0">
+                                <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
+                                <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
+
+                                <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+    <div class="container-fluid py-5">
+        <div class="cart-container">
+            <h1 class="cart-title">My Cart</h1>
+            
+            {% if cart_items %}
+            <div class="cart-items-container">
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                    <div class="cart-item" id="cart-item-{{ item.id }}">
+                        <img src="{{ item.product.images.first.image.url }}" 
+                             alt="{{ item.product.product_name }}" 
+                             class="cart-item-image">
+                        
+                        <div class="cart-item-details">
+                            <h3 class="cart-item-name">{{ item.product.product_name }}</h3>
+                            <div class="cart-item-price">₹{{ item.product.price }}</div>
+                            
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, -1)" 
+                                        {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                                <span class="quantity-value" id="quantity-{{ item.id }}">{{ item.quantity }}</span>
+                                <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, 1)" 
+                                        {% if item.quantity >= item.product.stock %}disabled{% endif %}>+</button>
+                            </div>
+                            
+                            <div class="item-total" id="item-total-{{ item.id }}">
+                                Item Total: ₹{{ item.get_total_price }}
+                            </div>
+                            
+                            <div class="stock-status" id="stock-status-{{ item.id }}">
+                                {% if item.quantity >= item.product.stock %}
+                                    <span class="out-of-stock">Maximum stock reached</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <button class="remove-btn" onclick="removeItem({{ item.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-summary-box">
+                        <h2 class="summary-title">Order Summary</h2>
+                        <div class="summary-row total-row">
+                            <span class="total-label">Total Amount:</span>
+                            <span class="total-value" id="cart-total">₹{{ total_price }}</span>
+                        </div>
+                        <button class="place-order-btn" onclick="placeOrder()">
+                            Place Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Your cart is empty</h3>
+                <p>Add some products to your cart and they will appear here</p>
+                <a href="{% url 'products' %}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+      <!-- Copyright Start -->
+      <div class="container-fluid copyright bg-dark py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>nurturenest@gmail.com</a>, All right reserved.</span>
+                </div>
+                <div class="col-md-6 my-auto text-center text-md-end text-white">
+                    
+                 
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Copyright End -->
+
+    <script>
+        function updateQuantity(itemId, change) {
+            const quantityElement = document.getElementById(`quantity-${itemId}`);
+            let currentQuantity = parseInt(quantityElement.textContent);
+            let newQuantity = currentQuantity + change;
+            
+            // Prevent quantity from going below 1
+            if (newQuantity < 1) {
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('quantity', newQuantity);
+            
+            fetch(`/cart/update/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                quantityElement.textContent = newQuantity;
+                document.getElementById(`item-total-${itemId}`).textContent = 
+                    `Item Total: ₹${data.total_price}`;
+                document.getElementById('cart-total').textContent = 
+                    `₹${data.cart_total}`;
+
+                // Update button states
+                const decreaseBtn = document.querySelector(`button[onclick="updateQuantity(${itemId}, -1)"]`);
+                const increaseBtn = document.querySelector(`button[onclick="updateQuantity(${itemId}, 1)"]`);
+                
+                // Disable decrease button if quantity is 1
+                decreaseBtn.disabled = (newQuantity <= 1);
+                
+                // Handle max stock reached
+                const stockStatus = document.getElementById(`stock-status-${itemId}`);
+                if (data.max_stock_reached) {
+                    increaseBtn.disabled = true;
+                    stockStatus.innerHTML = '<span class="out-of-stock">Maximum stock reached</span>';
+                } else {
+                    increaseBtn.disabled = false;
+                    stockStatus.innerHTML = '';
+                }
+            });
+        }
+
+        function removeItem(itemId) {
+            if(confirm('Are you sure you want to remove this item?')) {
+                fetch(`/cart/remove/${itemId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                }).then(() => {
+                    location.reload();
+                });
+            }
+        }
+
+        function placeOrder() {
+            fetch('/cart/place-order/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

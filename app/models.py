@@ -225,3 +225,22 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"Image for {self.product.product_name}"
 
+class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def get_total_price(self):
+        return self.product.price * self.quantity
+
+    class Meta:
+        ordering = ['-date_added']
+        
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # Prevents duplicate wishlist items

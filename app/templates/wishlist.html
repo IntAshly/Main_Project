@@ -29,6 +29,8 @@
     <!-- Template Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
+    <!-- Add Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
     <style>
         .box-container {
@@ -166,8 +168,6 @@
     </div>
 </div>
 
-<a href="{% url 'wishlist' %}" class="nav-item nav-link">Wishlist</a>
-
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
@@ -211,7 +211,7 @@
             <!-- Hero End -->
            <br> <div class="text-center mb-5">
                 <h4 class="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-3 title-border-radius">
-                    Our Products
+                    My Wishlist
                 </h4>
            
             <div class="container-fluid py-5">
@@ -221,9 +221,9 @@
                         {% for product in products %}
                         <div class="col-lg-3 col-md-6">
                             <div class="product-card position-relative bg-white p-3">
-                                <!-- Like Button -->
-                                <button class="like-button border-0" onclick="toggleWishlist({{ product.id }}, this)">
-                                    <i class="far fa-heart text-danger"></i>
+                                <!-- Remove Button -->
+                                <button class="like-button border-0" onclick="removeFromWishlist({{ product.id }}, this)">
+                                    <i class="fas fa-times text-danger"></i>
                                 </button>
                                 
                                 <!-- Product Image and Name Link -->
@@ -251,25 +251,28 @@
         </div>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script>
-                function toggleWishlist(productId, button) {
-                    fetch(`/wishlist/toggle/${productId}/`, {
+                function removeFromWishlist(productId, button) {
+                    const csrftoken = getCookie('csrftoken');
+
+                    fetch(`/wishlist/remove/${productId}/`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        }
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json',
+                        },
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            const icon = button.querySelector('i');
-                            icon.classList.remove('far');
-                            icon.classList.add('fas');
+                            // Remove the product card
+                            const productCard = button.closest('.col-lg-3');
+                            productCard.remove();
                             
-                            // Success notification for adding to wishlist
+                            // Success notification - small toast
                             Swal.fire({
                                 position: 'top-end',
                                 icon: 'success',
-                                title: 'Added to wishlist',
+                                title: 'Removed from wishlist',
                                 showConfirmButton: false,
                                 timer: 1500,
                                 width: '20em',
@@ -281,13 +284,47 @@
                                     popup: 'animate__animated animate__slideOutRight'
                                 }
                             });
+
+                            // Check if wishlist is empty
+                            const remainingProducts = document.querySelectorAll('.col-lg-3');
+                            if (remainingProducts.length === 0) {
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            }
                         } else {
                             Swal.fire({
-                                icon: 'info',
-                                title: 'Note',
-                                text: data.message
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.message || 'Something went wrong!',
+                                width: '20em',
+                                toast: true,
+                                showClass: {
+                                    popup: 'animate__animated animate__slideInRight'
+                                },
+                                hideClass: {
+                                    popup: 'animate__animated animate__slideOutRight'
+                                }
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Error notification - small toast
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Something went wrong!',
+                            width: '20em',
+                            toast: true,
+                            showClass: {
+                                popup: 'animate__animated animate__slideInRight'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__slideOutRight'
+                            }
+                        });
                     });
                 }
 
@@ -306,50 +343,50 @@
                     return cookieValue;
                 }
             </script>
-               
- 
+        </div>
+            <script>
+                function preventBack() {
+                    window.history.forward();
+                }
+                setTimeout("preventBack()", 0);
+                window.onunload = function () {
+                    null
+                };
+            </script>
+        </div>
+    </div>
 
-
-        <!-- Copyright Start -->
-        <div class="container-fluid copyright bg-dark py-4">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                        <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>nurturenest@gmail.com</a>, All right reserved.</span>
-                    </div>
-                    <div class="col-md-6 my-auto text-center text-md-end text-white">
-                        
-                     
-                    </div>
+    <!-- Copyright Start -->
+    <br><br><br><br><br><br><br><br><br><div class="container-fluid copyright bg-dark py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>nurturenest@gmail.com</a>, All right reserved.</span>
+                </div>
+                <div class="col-md-6 my-auto text-center text-md-end text-white">
+                    
+                 
                 </div>
             </div>
         </div>
-        <!-- Copyright End -->
+    </div>
+    <!-- Copyright End -->
 
 
-        <!-- Back to Top -->
-        <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
 
-        
-    <!-- JavaScript Libraries -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/wow/wow.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/lightbox/js/lightbox.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    
+<!-- JavaScript Libraries -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="lib/wow/wow.min.js"></script>
+<script src="lib/easing/easing.min.js"></script>
+<script src="lib/waypoints/waypoints.min.js"></script>
+<script src="lib/lightbox/js/lightbox.min.js"></script>
+<script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
-    </body>
-    <script type="text/javascript">
-        function preventBack() {
-            window.history.forward();
-        }
-        setTimeout("preventBack()", 0);
-        window.onunload = function () {
-            null
-        };
-    </script>
+<!-- Template Javascript -->
+<script src="js/main.js"></script>
+</body>
 </html>
