@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 class User(AbstractUser):
     USER_TYPE_CHOICES = [
@@ -250,3 +251,37 @@ class Wishlist(models.Model):
 
     class Meta:
         unique_together = ('user', 'product')  # Prevents duplicate wishlist items
+        
+class Order(models.Model):
+    ORDER_STATUS = (
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled')
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_date = models.DateTimeField(default=timezone.now)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=ORDER_STATUS, default='PENDING')
+    shipping_address = models.TextField()
+    contact_no = models.CharField(max_length=15)
+    pincode = models.CharField(max_length=10)
+    district = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Order #{self.id} by {self.user.username}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # Price at time of order
+
+    def get_total_price(self):
+        return self.quantity * self.price
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.product_name} in Order #{self.order.id}"

@@ -103,7 +103,8 @@ urlpatterns = [
     
     path('cart/check-profile/', views.check_profile, name='check_profile'),
     path('cart/save-profile/', views.save_profile, name='save_profile'),
-    path('cart/order-summary/', views.order_summary, name='order_summary'),  # Create this view
+    path('cart/order-summary/', views.order_summary, name='order_summary'),
+    
     
 
 

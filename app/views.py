@@ -1959,43 +1959,47 @@ def check_profile(request):
             'district': profile.district,
             'state': profile.state,
         }
-        return JsonResponse({'profile_exists': True, 'profile_data': profile_data})
+        return JsonResponse({
+            'profile_exists': True,
+            'profile_data': profile_data
+        })
     except ParentProfile.DoesNotExist:
-        return JsonResponse({'profile_exists': False, 'profile_data': {}})
+        return JsonResponse({
+            'profile_exists': False,
+            'profile_data': {}
+        })
 
 @login_required
 @require_POST
 def save_profile(request):
-    data = json.loads(request.body)
-    name = data.get('name')
-    address = data.get('address')
-    place = data.get('place')
-    pincode = data.get('pincode')
-    district = data.get('district')
-    state = data.get('state')
-
-    # Create or update the parent profile
-    profile, created = ParentProfile.objects.update_or_create(
-        user=request.user,
-        defaults={
-            'contact_no': data.get('contact_no'),  # Assuming you want to keep this
-            'parentno': data.get('parentno'),  # Assuming you want to keep this
-            'address': address,
-            'place': place,
-            'pincode': pincode,
-            'district': district,
-            'state': state,
-        }
-    )
-    return JsonResponse({'success': True})
+    try:
+        data = json.loads(request.body)
+        profile, created = ParentProfile.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'address': data.get('address'),
+                'place': data.get('place'),
+                'pincode': data.get('pincode'),
+                'district': data.get('district'),
+                'state': data.get('state'),
+            }
+        )
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 @login_required
 def order_summary(request):
     # Fetch the cart items and the user's profile
     cart_items = CartItem.objects.filter(user=request.user)
     profile = ParentProfile.objects.get(user=request.user)
+    
+    # Calculate total price
+    total_price = sum(item.get_total_price() for item in cart_items)
 
     return render(request, 'order_summary.html', {
         'cart_items': cart_items,
         'profile': profile,
+        'total_price': total_price,
     })
+
