@@ -55,6 +55,12 @@ class ParentProfile(models.Model):
     parentno = models.CharField(max_length=12, null=True, blank=True)  # New field added
     address = models.CharField(max_length=255)
     place = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=10, null=True, blank=True)  # New field added
+    district = models.CharField(max_length=100, null=True, blank=True)  # New field added
+    state = models.CharField(max_length=100, null=True, blank=True)  # New field added
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
 
             
 class ChildProfile(models.Model):

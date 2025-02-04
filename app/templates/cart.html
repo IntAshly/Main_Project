@@ -459,7 +459,7 @@
         }
 
         function placeOrder() {
-            fetch('/cart/place-order/', {
+            fetch('/cart/check-profile/', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken'),
@@ -467,11 +467,58 @@
             })
             .then(response => response.json())
             .then(data => {
-                if(data.success) {
-                    alert(data.message);
-                    location.reload();
+                if (data.profile_exists) {
+                    // Redirect to the order summary page with the selected product details
+                    window.location.href = `/cart/order-summary/`;
                 } else {
-                    alert(data.message);
+                    // Prompt for missing details
+                    Swal.fire({
+                        title: 'Complete Your Profile',
+                        html: `
+                            <input type="text" id="name" class="swal2-input" placeholder="Name" value="${data.profile_data.name || ''}">
+                            <input type="text" id="address" class="swal2-input" placeholder="Address" value="${data.profile_data.address || ''}">
+                            <input type="text" id="place" class="swal2-input" placeholder="Place" value="${data.profile_data.place || ''}">
+                            <input type="text" id="pincode" class="swal2-input" placeholder="Pincode">
+                            <input type="text" id="district" class="swal2-input" placeholder="District">
+                            <input type="text" id="state" class="swal2-input" placeholder="State">
+                        `,
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            const name = document.getElementById('name').value;
+                            const address = document.getElementById('address').value;
+                            const place = document.getElementById('place').value;
+                            const pincode = document.getElementById('pincode').value;
+                            const district = document.getElementById('district').value;
+                            const state = document.getElementById('state').value;
+
+                            if (!name || !address || !place || !pincode || !district || !state) {
+                                Swal.showValidationMessage('Please fill in all fields');
+                            }
+
+                            return { name, address, place, pincode, district, state };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Save the profile details
+                            fetch('/cart/save-profile/', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': getCookie('csrftoken'),
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(result.value)
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Redirect to the order summary page
+                                    window.location.href = `/cart/order-summary/`;
+                                } else {
+                                    Swal.fire('Error', data.message, 'error');
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }

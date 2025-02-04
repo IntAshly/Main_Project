@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Order Summary</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Order Summary</h1>
+        <h2>Shipping Details</h2>
+        <p>Name: {{ profile.user.get_full_name }}</p>
+        <p>Contact Number: {{ profile.contact_no }}</p>
+        <p>Parent Number: {{ profile.parentno }}</p>
+        <p>Address: {{ profile.address }}</p>
+        <p>Place: {{ profile.place }}</p>
+        <p>Pincode: {{ profile.pincode }}</p>
+        <p>District: {{ profile.district }}</p>
+        <p>State: {{ profile.state }}</p>
+
+        <h2>Products</h2>
+        <ul>
+            {% for item in cart_items %}
+                <li>{{ item.product.product_name }} - ₹{{ item.product.price }} (Quantity: {{ item.quantity }})</li>
+            {% endfor %}
+        </ul>
+
+        <button onclick="placeOrder()">Continue</button>
+    </div>
+</body>
+</html> 

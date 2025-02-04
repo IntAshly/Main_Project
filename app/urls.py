@@ -101,6 +101,10 @@ urlpatterns = [
     path('wishlist/toggle/<int:product_id>/', views.toggle_wishlist, name='toggle_wishlist'),
     path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
     
+    path('cart/check-profile/', views.check_profile, name='check_profile'),
+    path('cart/save-profile/', views.save_profile, name='save_profile'),
+    path('cart/order-summary/', views.order_summary, name='order_summary'),  # Create this view
+    
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
