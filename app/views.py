@@ -63,6 +63,8 @@ from .models import CartItem, Product
 from django.views.decorators.http import require_POST
 from .models import Wishlist
 import json
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 
 def register_view(request):
@@ -1817,9 +1819,51 @@ def delete_product_image(request, image_id):
             messages.error(request, f'Error deleting image: {str(e)}')
             return redirect('view_addproducts')
         
+from django.core.paginator import Paginator
+from .models import Product, Category
+
 def products_view(request):
+    # Start with all products
     products = Product.objects.prefetch_related('images').all()
-    return render(request, 'products.html', {'products': products})
+    categories = Category.objects.all()
+
+    # Handle Search
+    search_query = request.GET.get('search', '')
+    if search_query:
+        products = products.filter(
+            Q(product_name__icontains=search_query) |
+            Q(descriptions__description__icontains=search_query)
+        ).distinct()
+
+    # Handle Category Filter
+    category_id = request.GET.get('category')
+    if category_id:
+        products = products.filter(category_id=category_id)
+
+    # Handle Price Range Filter
+    price_range = request.GET.get('price_range')
+    if price_range:
+        if price_range == '0-500':
+            products = products.filter(price__lte=500)
+        elif price_range == '501-1000':
+            products = products.filter(price__gt=500, price__lte=1000)
+        elif price_range == '1001-2000':
+            products = products.filter(price__gt=1000, price__lte=2000)
+        elif price_range == '2001+':
+            products = products.filter(price__gt=2000)
+
+    # Add pagination if needed
+    paginator = Paginator(products, 12)  # Show 12 products per page
+    page = request.GET.get('page')
+    products = paginator.get_page(page)
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'products.html', context)
 
 def product_detail_view(request, product_id):
     product = get_object_or_404(

@@ -290,10 +290,28 @@
         <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
     </div>
 </div>
+
+ <!-- Shop Dropdown -->
+ <div class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fas fa-shopping-bag"></i>
+    </a>
+    <div class="dropdown-menu m-0 bg-secondary rounded-0">
+        <a href="{% url 'wishlist' %}" class="dropdown-item">
+            <i class="far fa-heart me-2"></i>Wishlist
+        </a>
+        <a href="{% url 'cart' %}" class="dropdown-item">
+            <i class="fas fa-shopping-cart me-2"></i>Cart
+        </a>
+       {% comment %} <a href="{% url 'order_history' %}" class="dropdown-item">
+            <i class="fas fa-history me-2"></i>Order History
+        </a>  {% endcomment %}
+    </div>
+</div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
-                                Hey,{{ user.get_full_name|default:user.username }}
+                                {{ user.get_full_name|default:user.username }}
                             </a>
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                 <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
