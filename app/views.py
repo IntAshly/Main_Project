@@ -61,7 +61,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from .models import CartItem, Product
 from django.views.decorators.http import require_POST
-from .models import Wishlist
+from .models import Wishlist, Order
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -2046,4 +2046,46 @@ def order_summary(request):
         'profile': profile,
         'total_price': total_price,
     })
+
+@csrf_exempt
+def payment_success(request):
+    if request.method == "POST":
+        try:
+            # Get form data
+            payment_id = request.POST.get('razorpay_payment_id')
+            amount = request.POST.get('amount')
+            
+            # Get cart items for the user
+            cart_items = CartItem.objects.filter(user=request.user)
+            
+            # Create orders for each cart item
+            for cart_item in cart_items:
+                Order.objects.create(
+                    user=request.user,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    total_amount=cart_item.get_total_price(),
+                    order_status='confirmed',
+                    payment_status='completed'
+                )
+            
+            # Clear the user's cart after creating orders
+            cart_items.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Payment successful',
+                'redirect_url': '/cart/order-summary/'  # Updated redirect URL
+            })
+        except Exception as e:
+            print(f"Error processing payment: {str(e)}")  # For debugging
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=400)
 

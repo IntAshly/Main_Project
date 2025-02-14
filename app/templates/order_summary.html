@@ -245,6 +245,9 @@
         <a href="{% url 'cart' %}" class="dropdown-item">
             <i class="fas fa-shopping-cart me-2"></i>Cart
         </a>
+        <a href="{% url 'my_orders' %}" class="dropdown-item">
+            <i class="fas fa-shopping-cart me-2"></i>My Orders
+        </a>
        {% comment %} <a href="{% url 'order_history' %}" class="dropdown-item">
             <i class="fas fa-history me-2"></i>Order History
         </a>  {% endcomment %}
@@ -345,7 +348,7 @@
                                 <span class="total-value">₹{{ total_price }}</span>
                             </div>
                         </div>
-                        <button class="pay-now-btn" onclick="proceedToPayment()">
+                        <button class="pay-now-btn" onclick="makePayment()">
                             Pay Now
                         </button>
                     </div>
@@ -367,71 +370,104 @@
     <!-- Copyright End -->
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
+        function makePayment() {
+            const amount = {{ total_price }} * 100;
+            
+            const options = {
+                key: 'rzp_test_3ybzcJKABRAGdi',
+                amount: amount,
+                currency: 'INR',
+                name: 'NurtureNest',
+                description: 'Purchase Payment',
+                image: '{% static "img/name.png" %}',
+                handler: function(response) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Processing Payment',
+                        text: 'Please wait...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-        function proceedToPayment() {
-            // Show loading state
-            Swal.fire({
-                title: 'Processing',
-                text: 'Please wait while we process your order...',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('razorpay_payment_id', response.razorpay_payment_id);
+                    formData.append('amount', {{ total_price }});
+                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-            fetch('/cart/create-order/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json',
+                    // Send payment details to backend
+                    fetch('{% url "payment_success" %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.message || 'Payment processing failed');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            Swal.fire({
+                                {% comment %} title: 'Order Placed Successfully!', {% endcomment %}
+                                text: 'Thank you for shopping with NurtureNest',
+                                {% comment %} icon: 'success', {% endcomment %}
+                                confirmButtonColor: '#FF6F61',
+                                showConfirmButton: true,
+                                allowOutsideClick: false,
+                                html: `
+                                    <div style="text-align: center;">
+                                        <i class="fas fa-check-circle" style="color: #28a745; font-size: 5rem; margin-bottom: 1rem;"></i>
+                                        <b><h2 style="color:rgb(0, 0, 0); margin-bottom: 1rem;">Order Placed Successfully!</h2></b>
+                                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Thank you for shopping with NurtureNest</p>
+                                        <p style="font-size: 1.1rem; color: #666;">Your order will be delivered soon</p>
+                                    </div>
+                                `
+                            }).then(() => {
+                                // Redirect after showing success message
+                                if (data.redirect_url) {
+                                    window.location.href = data.redirect_url;
+                                } else {
+                                    window.location.href = '/cart/order-summary/';  // Updated default redirect
+                                }
+                            });
+                        } else {
+                            throw new Error('Payment verification failed');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Payment Error',
+                            text: error.message || 'Something went wrong with the payment. Please try again.',
+                            icon: 'error',
+                            confirmButtonColor: '#FF6F61'
+                        });
+                    });
                 },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Order placed successfully!',
-                        icon: 'success',
-                        confirmButtonColor: '#FF6F61'
-                    }).then(() => {
-                        window.location.href = '/orders/' + data.order_id + '/';
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error',
-                        text: data.message || 'Failed to place order',
-                        icon: 'error',
-                        confirmButtonColor: '#FF6F61'
-                    });
+                prefill: {
+                    name: '{{ profile.user.get_full_name }}',
+                    contact: '{{ profile.contact_no }}',
+                    email: '{{ profile.user.email }}'
+                },
+                theme: {
+                    color: '#FF6F61'
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'An error occurred while processing your order',
-                    icon: 'error',
-                    confirmButtonColor: '#FF6F61'
-                });
-            });
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
         }
     </script>
 </body>
