@@ -27,7 +27,7 @@
             background-color: #ffe4e1;
         }
 
-        .orders-container {
+        .order-container {
             background: rgb(252, 229, 229);
             border-radius: 20px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -36,7 +36,7 @@
             max-width: 1200px;
         }
 
-        .orders-title {
+        .order-title {
             font-size: 2.2rem;
             font-weight: 700;
             color: #2c3e50;
@@ -49,7 +49,7 @@
         .order-card {
             background: white;
             border-radius: 15px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
@@ -71,25 +71,22 @@
 
         .order-date {
             color: #666;
-        }
-
-        .order-items {
-            margin-bottom: 15px;
+            font-size: 1.1rem;
         }
 
         .order-item {
             display: flex;
             align-items: center;
-            padding: 10px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #f5f5f5;
         }
 
         .item-image {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             object-fit: contain;
-            border-radius: 8px;
-            margin-right: 15px;
+            border-radius: 10px;
+            margin-right: 20px;
         }
 
         .item-details {
@@ -97,20 +94,22 @@
         }
 
         .item-name {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .item-price {
+            font-size: 1.1rem;
             color: #e74c3c;
             font-weight: 600;
+            margin-bottom: 5px;
         }
 
         .item-quantity {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         .order-footer {
@@ -158,43 +157,152 @@
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
+            display: inline-block;
+            margin-left: 15px;
         }
 
         .download-receipt:hover {
             background-color: #ff5447;
             transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
         }
 
         .delivery-info {
             background-color: #f8f9fa;
             padding: 10px 15px;
             border-radius: 8px;
-            margin-top: 10px;
+            margin: 15px 0;
+            font-size: 1.1rem;
         }
 
         .delivery-date {
             color: #28a745;
             font-weight: 600;
         }
+
+        .empty-orders {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            color: #FF6F61;
+            margin-bottom: 20px;
+        }
+
+        .empty-orders h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .shop-now-btn {
+            background-color: #FF6F61;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .shop-now-btn:hover {
+            background-color: #ff5447;
+            color: white;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
-    <!-- Navbar Start -->
-    {% include 'navbar.html' %}
+      <!-- Navbar start -->
+      <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
+        <div class="container px-0">
+            <nav class="navbar navbar-light navbar-expand-xl py-3">
+                <a href="{% url 'index' %}" class="navbar-brand">
+                    <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
+                </a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+                        <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
+                        <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
+                        <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
+                        
+                        <!-- Replace the existing notification link with this -->
+<a href="{% url 'notification' %}" class="nav-item nav-link position-relative">
+    <i class="fas fa-bell"></i>
+    {% if unread_notifications_count > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ unread_notifications_count }}
+        </span>
+    {% endif %}
+</a>
+          
+<div class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fa fa-hand-holding-heart"></i>
+    </a>
+    <div class="dropdown-menu m-0 bg-secondary rounded-0">
+        <a href="{% url 'view_feedingchart' %}" class="dropdown-item">FeedingChart</a>
+        <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
+    </div>
+</div>
+
+ <!-- Shop Dropdown -->
+ <div class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fas fa-shopping-bag"></i>
+    </a>
+    <div class="dropdown-menu m-0 bg-secondary rounded-0">
+        <a href="{% url 'wishlist' %}" class="dropdown-item">
+            <i class="far fa-heart me-2"></i>Wishlist
+        </a>
+        <a href="{% url 'cart' %}" class="dropdown-item">
+            <i class="fas fa-shopping-cart me-2"></i>Cart
+        </a>
+        <a href="{% url 'my_orders' %}" class="dropdown-item">
+            <i class="fas fa-history me-2"></i>Order History
+        </a> 
+       
+    </div>
+</div>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
+                                {{ user.get_full_name|default:user.username }}
+                            </a>
+                            <div class="dropdown-menu m-0 bg-secondary rounded-0">
+                                <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
+                                <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
+
+                                <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
     <!-- Navbar End -->
 
     <div class="container-fluid py-5">
-        <div class="orders-container">
-            <h1 class="orders-title">My Orders</h1>
+        <div class="order-container">
+            <h1 class="order-title">My Orders</h1>
 
-            {% for order in orders %}
-            <div class="order-card">
-                <div class="order-header">
-                    <div class="order-id">Order #{{ order.id }}</div>
-                    <div class="order-date">Ordered on: {{ order.order_date|date:"F d, Y" }}</div>
-                </div>
+            {% if orders %}
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Order #{{ order.id }}</div>
+                        <div class="order-date">Ordered on: {{ order.order_date|date:"F d, Y" }}</div>
+                    </div>
 
-                <div class="order-items">
                     <div class="order-item">
                         <img src="{{ order.product.images.first.image.url }}" 
                              alt="{{ order.product.product_name }}" 
@@ -205,40 +313,42 @@
                             <div class="item-quantity">Quantity: {{ order.quantity }}</div>
                         </div>
                     </div>
-                </div>
 
-                <div class="delivery-info">
-                    <i class="fas fa-truck"></i>
-                    Expected Delivery: 
-                    <span class="delivery-date">
-                        {{ order.order_date|add_days:7|date:"F d, Y" }}
-                    </span>
-                </div>
-
-                <div class="order-footer">
-                    <div class="order-total">
-                        Total Amount: ₹{{ order.total_amount }}
+                    <div class="delivery-info">
+                        <i class="fas fa-truck me-2"></i>
+                        Expected Delivery: 
+                        <span class="delivery-date">
+                            {{ order.order_date|add_days:7|date:"F d, Y" }}
+                        </span>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="order-status status-{{ order.order_status }}">
-                            {{ order.order_status|title }}
+
+                    <div class="order-footer">
+                        <div class="order-total">
+                            Total Amount: ₹{{ order.total_amount }}
                         </div>
-                        {% if forloop.first %}
-                        <a href="{% url 'download_receipt' order.id %}" class="download-receipt">
-                            <i class="fas fa-download me-2"></i>Download Receipt
-                        </a>
-                        {% endif %}
+                        <div class="d-flex align-items-center">
+                            <div class="order-status status-{{ order.order_status }}">
+                                {{ order.order_status|title }}
+                            </div>
+                            {% if forloop.first %}
+                            <a href="{% url 'download_receipt' order.id %}" class="download-receipt">
+                                <i class="fas fa-download me-2"></i>Download Receipt
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% empty %}
-            <div class="text-center py-5">
-                <i class="fas fa-shopping-bag fa-3x mb-3" style="color: #FF6F61;"></i>
-                <h3>No orders yet</h3>
-                <p>Start shopping to see your orders here!</p>
-                <a href="{% url 'products' %}" class="btn btn-primary mt-3">Shop Now</a>
-            </div>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-orders">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h3>No Orders Yet</h3>
+                    <p>Looks like you haven't made any orders yet.</p>
+                    <a href="{% url 'products' %}" class="shop-now-btn">
+                        Start Shopping
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 

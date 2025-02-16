@@ -65,6 +65,9 @@ from .models import Wishlist, Order
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from datetime import timedelta
 
 
 def register_view(request):
@@ -2089,3 +2092,74 @@ def payment_success(request):
         'message': 'Invalid request method'
     }, status=400)
 
+@login_required
+def my_orders(request):
+    # Get all orders for the current user, ordered by date (newest first)
+    orders = Order.objects.filter(user=request.user).order_by('-order_date')
+    return render(request, 'my_orders.html', {'orders': orders})
+
+@login_required
+def download_receipt(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    profile = ParentProfile.objects.get(user=request.user)
+    
+    # Create the PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="order_{order.id}_receipt.pdf"'
+    
+    # Create the PDF object
+    p = canvas.Canvas(response)
+    
+    # Add company logo/header
+    # p.drawImage('path/to/logo.png', 40, 750, width=120, height=80)
+    
+    # Add receipt title
+    p.setFont("Helvetica-Bold", 24)
+    p.drawString(220, 800, "NurtureNest")
+    p.setFont("Helvetica", 16)
+    p.drawString(200, 770, "Order Receipt")
+    
+    # Add order details
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(40, 720, "Order Details:")
+    p.setFont("Helvetica", 12)
+    p.drawString(40, 700, f"Order ID: #{order.id}")
+    p.drawString(40, 680, f"Order Date: {order.order_date.strftime('%B %d, %Y')}")
+    p.drawString(40, 660, f"Expected Delivery: {(order.order_date + timedelta(days=7)).strftime('%B %d, %Y')}")
+    
+    # Add customer details
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(40, 620, "Customer Details:")
+    p.setFont("Helvetica", 12)
+    p.drawString(40, 600, f"Name: {request.user.get_full_name()}")
+    p.drawString(40, 580, f"Email: {request.user.email}")
+    p.drawString(40, 560, f"Phone: {profile.contact_no}")
+    p.drawString(40, 540, f"Address: {profile.address}")
+    p.drawString(40, 520, f"{profile.place}, {profile.district}")
+    p.drawString(40, 500, f"{profile.state} - {profile.pincode}")
+    
+    # Add product details
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(40, 460, "Product Details:")
+    p.setFont("Helvetica", 12)
+    p.drawString(40, 440, f"Product: {order.product.product_name}")
+    p.drawString(40, 420, f"Quantity: {order.quantity}")
+    p.drawString(40, 400, f"Price per unit: ₹{order.product.price}")
+    
+    # Add total amount
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(40, 360, f"Total Amount: ₹{order.total_amount}")
+    
+    # Add payment status
+    p.setFont("Helvetica", 12)
+    p.drawString(40, 330, f"Payment Status: {order.payment_status.title()}")
+    
+    # Add footer
+    p.setFont("Helvetica", 10)
+    p.drawString(40, 50, "Thank you for shopping with NurtureNest!")
+    p.drawString(40, 30, "For any queries, please contact: nurturenest@gmail.com")
+    
+    # Save the PDF
+    p.showPage()
+    p.save()
+    return response

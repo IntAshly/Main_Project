@@ -105,7 +105,8 @@ urlpatterns = [
     path('cart/save-profile/', views.save_profile, name='save_profile'),
     path('cart/order-summary/', views.order_summary, name='order_summary'),
     path('payment-success/', views.payment_success, name='payment_success'),
-    
+    path('my-orders/', views.my_orders, name='my_orders'),
+    path('download-receipt/<int:order_id>/', views.download_receipt, name='download_receipt'),
     
     
 
