@@ -2117,7 +2117,7 @@ def download_receipt(request, order_id):
     p.setFont("Helvetica-Bold", 24)
     p.drawString(220, 800, "NurtureNest")
     p.setFont("Helvetica", 16)
-    p.drawString(200, 770, "Order Receipt")
+    p.drawString(200, 800, "Order Receipt")
     
     # Add order details
     p.setFont("Helvetica-Bold", 12)
