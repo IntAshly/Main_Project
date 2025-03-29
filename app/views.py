@@ -68,7 +68,26 @@ from django.core.paginator import Paginator
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from datetime import timedelta
+from io import BytesIO
+from google.cloud import vision
+from google.cloud import language_v1
+import openai
+from openai import OpenAI
+import time
 
+# Set your API keys securely
+GOOGLE_API_KEY = 'AIzaSyAQqshQclyiQbdSiBa3m7xymGLWRfhtEFk'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_API_KEY  # Set Google Cloud credentials
+
+# OpenAI API Configuration
+OPENAI_API_KEY = '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'
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Configure OpenAI client globally
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 def register_view(request):
     if request.method == 'POST':
@@ -1023,113 +1042,6 @@ def update_appointment_status(request, appointment_id):
                 'nurturenest02@example.com',
                 [appointment.user.email],
                 html_message=html_message,
-            )
-            
-            request.session['appointment_status_success'] = f"Appointment for {appointment.user.username} on {appointment.appointment_date} has been rejected."
-        
-        appointment.updated_at = timezone.now()
-        appointment.save()
-    
-    return redirect('manage_appointments')
-
-# @login_required
-# def appointment_success(request):
-#     appointments = Appointment.objects.filter(user=request.user).order_by('-appointment_date', '-appointment_time')
-#     success_message = request.session.pop('appointment_success', None)
-#     context = {
-#         'appointments': appointments,
-#         'success_message': success_message
-#     }
-#     return render(request, 'appointment_success.html', context)
-
-@login_required
-def delete_appointment(request, appointment_id):
-    if request.method == 'POST':
-        appointment = get_object_or_404(Appointment, id=appointment_id, user=request.user)
-        appointment.delete()
-        messages.success(request, 'Appointment deleted successfully.')
-    return redirect('appointment_success')
-
-@login_required
-def manage_appointments(request):
-    # Check if the user is associated with a health center
-    try:
-        health_center = HealthProfile.objects.get(user=request.user)
-    except HealthProfile.DoesNotExist:
-        messages.error(request, "You are not associated with a health center.")
-        return redirect('home')  # or wherever you want to redirect non-health center users
-
-    appointments = Appointment.objects.filter(health_center=health_center).order_by('appointment_date', 'appointment_time')
-    
-    success_message = request.session.pop('appointment_status_success', None)
-    context = {
-        'appointments': appointments,
-        'success_message': success_message
-    }
-    return render(request, 'manage_appointments.html', context)
-
-
-@login_required
-def update_appointment_status(request, appointment_id):
-    if request.method == 'POST':
-        appointment = get_object_or_404(Appointment, id=appointment_id)
-        action = request.POST.get('action')
-        
-        if action == 'approve':
-            appointment.status = 'Approved'
-            appointment.approval_date = timezone.now()
-            appointment.save()
-            
-            # Send approval email
-            subject = 'Appointment Approved'
-            html_message = render_to_string('appointment_approved_email.html', {
-                'appointment': appointment,
-                'user': appointment.user,
-                'health_center': appointment.health_center,
-            })
-            plain_message = strip_tags(html_message)
-            send_mail(
-                subject,
-                plain_message,
-                'nurturenest02@example.com',
-                [appointment.user.email],
-                html_message=html_message,
-            )
-            
-            # Create a notification
-            Notification.objects.create(
-                user=appointment.user,
-                message=f"Your appointment on {appointment.appointment_date} has been approved.",
-                related_appointment=appointment
-            )
-            
-            request.session['appointment_status_success'] = f"Appointment for {appointment.user.username} on {appointment.appointment_date} has been approved."
-        elif action == 'reject':
-            appointment.status = 'Rejected'
-            appointment.save()
-            
-            # Send rejection email
-            subject = 'Appointment Rejected'
-            html_message = render_to_string('appointment_rejected_email.html', {
-                'appointment': appointment,
-                'user': appointment.user,
-                'health_center': appointment.health_center,
-                'reason': request.POST.get('rejection_reason', 'No reason provided'),
-            })
-            plain_message = strip_tags(html_message)
-            send_mail(
-                subject,
-                plain_message,
-                'nurturenest02@example.com',
-                [appointment.user.email],
-                html_message=html_message,
-            )
-            
-            # Create a notification for rejection
-            Notification.objects.create(
-                user=appointment.user,
-                message=f"Your appointment on {appointment.appointment_date} has been rejected.",
-                related_appointment=appointment
             )
             
             request.session['appointment_status_success'] = f"Appointment for {appointment.user.username} on {appointment.appointment_date} has been rejected."
@@ -2163,3 +2075,430 @@ def download_receipt(request, order_id):
     p.showPage()
     p.save()
     return response
+
+
+@login_required
+def view_orders(request):
+    # Use select_related to fetch related data efficiently
+    orders = Order.objects.select_related(
+        'user',
+        'product'
+    ).prefetch_related(
+        'user__parentprofile_set'  # Prefetch related ParentProfile data
+    ).all().order_by('-order_date')
+    return render(request, 'view_orders.html', {'orders': orders})
+
+@login_required
+def download_adminreciept(request, order_id):
+    try:
+        order = Order.objects.select_related('user', 'product').get(id=order_id)
+        
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer)
+        
+        # Draw things on the PDF
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(100, 800, "NurtureNest - Order Receipt")
+        
+        # Order details
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 750, f"Order ID: {order.id}")
+        p.drawString(100, 730, f"Date: {order.order_date.strftime('%Y-%m-%d %H:%M')}")
+        
+        # Customer details
+        p.drawString(100, 700, "Customer Details:")
+        p.drawString(120, 680, f"Name: {order.user.username}")
+        p.drawString(120, 660, f"Email: {order.user.email}")
+        
+        # Product details
+        p.drawString(100, 560, "Product Details:")
+        p.drawString(120, 540, f"Product: {order.product.product_name}")
+        p.drawString(120, 520, f"Price: ₹{order.product.price}")
+        p.drawString(120, 500, f"Quantity: {order.quantity}")
+        p.drawString(120, 480, f"Total Amount: ₹{order.total_amount}")
+        
+        # Order Status
+        p.drawString(100, 440, f"Order Status: {order.order_status}")
+        p.drawString(100, 420, f"Payment Status: {order.payment_status}")
+        p.drawString(100, 400, f"Delivery Status: {order.delivery_status}")
+        
+        p.showPage()
+        p.save()
+        
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="order_{order.id}_receipt.pdf"'
+        
+        return response
+        
+    except Order.DoesNotExist:
+        return HttpResponse("Order not found", status=404)
+    
+    
+    
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import google.generativeai as genai
+import logging
+import pytesseract
+import easyocr  # Import the easyocr library
+
+from PIL import Image
+import io
+
+logger = logging.getLogger(__name__)
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Ashly\Downloads'
+
+# Configure the Gemini API key
+genai.configure(api_key="AIzaSyAiok6VSBtZtoh2bYYMP0uitJw2pc2d3E4")
+
+# Set up the model
+model = genai.GenerativeModel('gemini-2.0-flash')
+
+reader = easyocr.Reader(['en'])  # Use 'en' for English, add more languages if needed
+
+def generate_response(prompt):
+    """
+    Generates a response from the Gemini model based on the given prompt.
+    """
+    try:
+        # Add a health-related context to the prompt
+        health_prompt = f"As a helpful health assistant, respond to the following query: {prompt}"
+        response = model.generate_content(health_prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Error generating response: {e}")
+        return f"An error occurred: {e}"
+
+@csrf_exempt
+def health_assistant_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            message = data.get('message')
+            if message:
+                logger.info(f"Received message: {message}")
+                response = generate_response(message)
+                logger.info(f"Generated response: {response}")
+                return JsonResponse({'response': response})  # Ensure response is in JSON format
+            else:
+                logger.error("No message provided in request")
+                return JsonResponse({'error': 'No message provided'}, status=400)
+        except Exception as e:
+            logger.error(f"Error processing request: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        logger.error("Invalid request method")
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+
+def health_assistant_page(request):
+    return render(request, 'health_assistant.html')
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import os
+from django.conf import settings
+from .train_models import predict_medicine_details
+
+@csrf_exempt
+def upload_prescription(request):
+    if request.method == 'POST':
+        try:
+            # Check if an image file was uploaded
+            if 'prescription' not in request.FILES:
+                return JsonResponse({'error': 'No file uploaded'})
+
+            image = request.FILES['prescription']
+            image_path = os.path.join(settings.MEDIA_ROOT, 'medicine_images', image.name)
+
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+
+            # Save the image
+            with open(image_path, 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+
+            # Get medicine details
+            medicine_details = predict_medicine_details(image_path)
+
+            # Check for errors in the returned dictionary
+            if 'error' in medicine_details:
+                return JsonResponse({'error': medicine_details['error']})  # Return error message
+
+            # Construct response with the predicted medicine details
+            medicine_details['image_url'] = os.path.join(settings.MEDIA_URL, 'medicine_images', image.name)
+
+            return JsonResponse({'medicines': [medicine_details]})
+
+        except Exception as e:
+            return JsonResponse({'error': f"Error processing prescription: {str(e)}"})
+
+    return JsonResponse({'error': 'Invalid request method'})
+
+
+
+
+def get_ai_response(message):
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful medical assistant specializing in children's health, vaccines, and general medical advice. Provide accurate, helpful information but always recommend consulting a doctor for specific medical concerns."},
+                {"role": "user", "content": message}
+            ]
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"I apologize, but I'm having trouble processing your request. Please try again later."
+
+
+    
+
+from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import openai
+from .models import Product, Category
+
+
+def toy_assistant_page(request):
+    return render(request, 'toy_assistant.html')
+
+from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import json
+import openai
+from .models import Product, Category
+
+@csrf_exempt
+def toy_recommendations(request):
+    if request.method == 'POST':
+        try:
+            # Parse the request data
+            data = json.loads(request.body)
+            user_query = data.get('query', '').lower()
+            print(f"Received query: {user_query}")  # Debug log
+
+            # Define age ranges
+            age_patterns = {
+                '0-1': '0-1 years',
+                '0 to 1': '0-1 years',
+                '1-2': '1-2 years',
+                '1 to 2': '1-2 years',
+                '2-3': '2-3 years',
+                '2 to 3': '2-3 years',
+                '3-4': '3-4 years',
+                '3 to 4': '3-4 years'
+            }
+
+            # Define toy types
+            toy_types = ['musical', 'educational', 'riding', 'rocker', 'walker']
+
+            # Initialize filters
+            age_filter = None
+            type_filter = None
+
+            # Check for age range in query
+            for pattern, category in age_patterns.items():
+                if pattern in user_query:
+                    age_filter = category
+                    print(f"Found age filter: {age_filter}")  # Debug log
+                    break
+
+            # Check for toy type in query
+            for toy_type in toy_types:
+                if toy_type in user_query:
+                    type_filter = toy_type
+                    print(f"Found type filter: {type_filter}")  # Debug log
+                    break
+
+            # Build the query
+            base_query = Product.objects.all()
+
+            if age_filter:
+                base_query = base_query.filter(category__name=age_filter)
+                print(f"Filtering by age: {age_filter}")  # Debug log
+
+            if type_filter:
+                base_query = base_query.filter(
+                    Q(product_name__icontains=type_filter) |
+                    Q(descriptions__description__icontains=type_filter)
+                )
+                print(f"Filtering by type: {type_filter}")  # Debug log
+
+            # Get products with related data
+            products = base_query.prefetch_related(
+                'descriptions',
+                'images',
+                'category'
+            ).distinct()[:3]
+
+            print(f"Found {products.count()} products")  # Debug log
+
+            # Format recommendations
+            recommendations = []
+            for product in products:
+                try:
+                    description = product.descriptions.first()
+                    image = product.images.first()
+                    
+                    recommendation = {
+                        "name": product.product_name,
+                        "description": description.description[:200] + "..." if description and len(description.description) > 200 else description.description if description else "",
+                        "price": float(product.price),
+                        "category": product.category.name,
+                        "stock": product.stock,
+                        "image": image.image.url if image else "/static/img/toys/default.jpg",
+                        "url": f"/products/{product.id}",
+                    }
+                    recommendations.append(recommendation)
+                    print(f"Added recommendation: {product.product_name}")  # Debug log
+                except Exception as e:
+                    print(f"Error formatting product {product.id}: {str(e)}")  # Debug log
+                    continue
+
+            # Create response message
+            if recommendations:
+                criteria_parts = []
+                if age_filter:
+                    criteria_parts.append(f"for {age_filter}")
+                if type_filter:
+                    criteria_parts.append(f"{type_filter} toys")
+                
+                criteria = ' '.join(criteria_parts) if criteria_parts else "matching your search"
+                speech_response = (
+                    f"I found {len(recommendations)} toys {criteria}. "
+                    f"These include: {', '.join([rec['name'] for rec in recommendations])}."
+                )
+            else:
+                if age_filter or type_filter:
+                    criteria = []
+                    if age_filter:
+                        criteria.append(f"age {age_filter}")
+                    if type_filter:
+                        criteria.append(f"{type_filter} toys")
+                    speech_response = f"I couldn't find any toys matching {' and '.join(criteria)}."
+                else:
+                    speech_response = "I couldn't find any toys matching your search."
+
+            print(f"Sending response with {len(recommendations)} recommendations")  # Debug log
+
+            return JsonResponse({
+                'recommendations': recommendations,
+                'speech_response': speech_response
+            })
+
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error: {str(e)}")  # Debug log
+            return JsonResponse({
+                'recommendations': [],
+                'speech_response': "Sorry, I couldn't understand your request. Please try again."
+            }, status=200)
+        except Exception as e:
+            print(f"Unexpected Error: {str(e)}")  # Debug log
+            return JsonResponse({
+                'recommendations': [],
+                'speech_response': "An error occurred. Please try again."
+            }, status=200)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def chat_api(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        message = data.get('message', '')
+        query_type = data.get('type', 'symptoms')
+
+        try:
+            if query_type == 'medicine':
+                return handle_medicine_query(message)
+            else:
+                return handle_symptom_query(message)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def handle_medicine_query(message):
+    # Use Google Cloud Natural Language API to analyze medicine query
+    client = language_v1.LanguageServiceClient()
+    document = language_v1.Document(content=message, type_=language_v1.Document.Type.PLAIN_TEXT)
+    
+    # Analyze the content
+    entities = client.analyze_entities(request={'document': document}).entities
+    
+    # Process the results
+    medicine_info = {
+        'name': next((e.name for e in entities if e.type_ == language_v1.Entity.Type.CONSUMER_GOOD), message),
+        'usage': [
+            'Recommended dosage for children (consult pediatrician)',
+            'Take as prescribed by healthcare provider'
+        ],
+        'sideEffects': [
+            'May cause drowsiness',
+            'Contact doctor if any adverse reactions occur'
+        ],
+        'precautions': [
+            'Keep out of reach of children',
+            'Store in a cool, dry place',
+            'Do not exceed recommended dose'
+        ]
+    }
+    
+    return JsonResponse(medicine_info)
+
+def handle_symptom_query(message):
+    # Use Google Cloud Natural Language API to analyze symptoms
+    client = language_v1.LanguageServiceClient()
+    document = language_v1.Document(content=message, type_=language_v1.Document.Type.PLAIN_TEXT)
+    
+    # Analyze the content
+    entities = client.analyze_entities(request={'document': document}).entities
+    
+    # Process the results
+    disease_info = {
+        'disease': 'Based on symptoms analysis',
+        'causes': [
+            'Common causes in children',
+            'Environmental factors',
+            'Possible infections'
+        ],
+        'medicines': [
+            'Consult pediatrician for prescription',
+            'Over-the-counter options (with doctor\'s approval)'
+        ],
+        'precautions': [
+            'Rest and hydration',
+            'Monitor temperature',
+            'Watch for worsening symptoms'
+        ],
+        'prevention': [
+            'Maintain good hygiene',
+            'Balanced diet',
+            'Regular exercise'
+        ]
+    }
+    
+    return JsonResponse(disease_info)
+
+@login_required
+def delete_appointment(request, appointment_id):
+    try:
+        appointment = get_object_or_404(Appointment, id=appointment_id, user=request.user)
+        appointment.delete()
+        messages.success(request, 'Appointment cancelled successfully.')
+    except Exception as e:
+        messages.error(request, f'Error cancelling appointment: {str(e)}')
+    
+    return redirect('appointment_success')

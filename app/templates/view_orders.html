@@ -1,0 +1,366 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Orders | Admin | View Orders</title>
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <style>
+            .bg-nav {
+                background-color: #4B5563; /* Dark gray for nav background */
+            }
+    
+            body {
+                background-color: #f0f4f8; /* Light gray background */
+            }
+    
+            .no-underline {
+                text-decoration: none;
+            }
+    
+            .text-black {
+                color: black;
+            }
+    
+            .font-bold {
+                font-weight: bold;
+            }
+    
+            .sidebar-link {
+                display: flex;
+                align-items: center;
+                padding: 1rem;
+                color: #F3F4F6; /* Light gray text */
+                font-weight: bold;
+                font-size: 18px;
+            }
+    
+            .sidebar-link:hover {
+                background-color: #1F2937; /* Darker gray on hover */
+            }
+    
+            .main-content {
+                padding: 2rem;
+                background-color: #f5f5f5; /* White main content area */
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+                border-radius: 8px; /* Rounded corners */
+            }
+    
+            .footer {
+                background-color: #374151; /* Darker gray footer */
+                color: white;
+                padding: 1rem;
+                text-align: center;
+            }
+    
+            .icon-style {
+                font-size: 2rem; /* Larger icons */
+            }
+    
+            .box-title {
+                margin-top: 1rem;
+                font-size: 1.25rem; /* Larger text */
+            }
+    
+            .box-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+    
+            .box-container > div {
+                flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+                margin-bottom: 20px; /* Space between rows */
+            }
+    
+            @media (max-width: 768px) {
+                .box-container > div {
+                    flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+                }
+            }
+                
+            .profile-container {
+                position: relative; /* Positioning for dropdown */
+                display: flex; /* Align items horizontally */
+                align-items: center; /* Center vertically */
+            }
+            
+            .profile-dropdown {
+                background-color: #4B5563; /* Dark gray background */
+                color: white; /* White text */
+                padding: 10px; /* Padding */
+                text-align: left; /* Align text left */
+                width: 200px; /* Set width */
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+                border-radius: 8px; /* Rounded corners */
+                position: absolute; /* Position dropdown absolutely */
+                top: 100%; /* Position below the container */
+                right: 0; /* Align to the right of the container */
+                margin-top: 8px; /* Space between text and dropdown */
+                display: none; /* Initially hidden */
+                z-index: 10; /* Ensure dropdown is above other content */
+            }
+            
+            .profile-dropdown a {
+                color: white; /* White text */
+                padding: 10px;
+                display: block;
+                text-decoration: none; /* No underline */
+            }
+            
+            .profile-dropdown a:hover {
+                background-color: #1F2937; /* Darker gray on hover */
+            }
+            
+            .show {
+                display: block; /* Display when shown */
+            }
+            .error {
+                color: red;
+                font-size: 0.875rem;
+            }
+            
+            .text-success {
+                color: green;
+                font-size: 0.875rem;
+            }
+            
+   
+        .order-table th, .order-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .order-table tr:hover {
+            background-color: #f8fafc;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-delivered {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-processing {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Add these new table styles */
+        .table-container {
+            margin: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .order-table th {
+            background-color: #f8f9fa;
+            color: #374151;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .order-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #4b5563;
+        }
+
+        .order-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .order-table th:first-child,
+        .order-table td:first-child {
+            padding-left: 24px;
+        }
+
+        .order-table th:last-child,
+        .order-table td:last-child {
+            padding-right: 24px;
+        }
+
+        .table-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            color: #111827;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+       <!--Container -->
+       <div class="mx-auto bg-grey-400">
+        <!--Screen-->
+        <div class="min-h-screen flex flex-col">
+            <!--Header Section Starts Here-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="#">My Profile</a>
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!--/Header-->
+
+            <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-user-check mx-2"></i>
+                            <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-syringe mx-2"></i>
+                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-grip-horizontal mx-2"></i>
+                            <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-users mx-2"></i>
+                            <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
+                        </li>
+
+                        <li class="sidebar-link">
+                            <i class="fas fa-square-full mx-2"></i>
+                            <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
+                        </li>
+
+                        <li class="sidebar-link">
+                            <i class="fas fa-square-full mx-2"></i>
+                            <a href="{% url 'ecom_admin_home' %}" class="no-underline">Products manage</a>
+                        </li>
+                    </ul>
+                </aside>
+                <!--/Sidebar-->
+                <!--Main-->
+                <main class="flex-1 p-6">
+                    <div class="main-content">
+           <!--Grid Form-->
+
+               
+                        <div class="table-header">
+                            <h2>Order Management</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="order-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                      
+                                        <th>Contact</th>
+                                        <th>Email</th>
+                                        <th>Pincode</th>
+                                        <th>Product</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    {% with parent_profile=order.user.parentprofile_set.first %}
+                                    <tr>
+                                        <td>{{ order.id }}</td>
+                                       
+                                        <td>{{ parent_profile.contact_no|default:"N/A" }}</td>
+                                        <td>{{ order.user.email }}</td>
+                                        <td>{{ parent_profile.pincode|default:"N/A" }}</td>
+                                        <td>{{ order.product.product_name }}</td>
+                                        <td>₹{{ order.total_amount }}</td>
+                                        <td>
+                                            <span class="status-badge {% if order.order_status == 'delivered' %}status-delivered
+                                                  {% elif order.order_status == 'pending' %}status-pending
+                                                  {% else %}status-processing{% endif %}">
+                                                {{ order.order_status|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ order.order_date|date:"d M Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'download_adminreciept' order.id %}" 
+                                               class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-xs">
+                                                Download
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sidebarToggle() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        }
+
+        function profileToggle() {
+            document.getElementById('ProfileDropDown').classList.toggle('hidden');
+        }
+
+        // Prevent back button
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
+</body>
+</html>

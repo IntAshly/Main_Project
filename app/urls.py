@@ -107,9 +107,17 @@ urlpatterns = [
     path('payment-success/', views.payment_success, name='payment_success'),
     path('my-orders/', views.my_orders, name='my_orders'),
     path('download-receipt/<int:order_id>/', views.download_receipt, name='download_receipt'),
+    path('view_orders/', views.view_orders, name='view_orders'),
+    path('order/<int:order_id>/receipt/', views.download_adminreciept, name='download_adminreciept'),
     
     
-
+    path('health_assistant/', views.health_assistant_page, name='health_assistant_page'),
+    path('health_assistant_api/', views.health_assistant_api, name='health_assistant_api'),
+    path('upload_prescription/', views.upload_prescription, name='upload_prescription'),
+    
+    path('toy-assistant/', views.toy_assistant_page, name='toy_assistant'),
+    path('api/toy-recommendations/', views.toy_recommendations, name='toy_recommendations'),
+    path('api/chat/', views.chat_api, name='chat_api'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
