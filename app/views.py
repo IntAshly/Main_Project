@@ -74,6 +74,20 @@ from google.cloud import language_v1
 import openai
 from openai import OpenAI
 import time
+import random
+from django.core.cache import cache
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import os
+from django.conf import settings
+from .train_models import predict_medicine_details, train_medicine_model
+from django.db.models import Count
+from django.utils import timezone
+from datetime import datetime, timedelta
+import csv
+from datetime import datetime
+import xlsxwriter
+from io import BytesIO
 
 # Set your API keys securely
 GOOGLE_API_KEY = 'AIzaSyAQqshQclyiQbdSiBa3m7xymGLWRfhtEFk'
@@ -88,6 +102,14 @@ logger = logging.getLogger(__name__)
 
 # Configure OpenAI client globally
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
+
+# Initialize the model when the server starts
+try:
+    if not os.path.exists(os.path.join(settings.BASE_DIR, 'app', 'train_models', 'medicine_model.pkl')):
+        print("Training medicine recognition model...")
+        train_medicine_model()
+except Exception as e:
+    print(f"Error initializing model: {str(e)}")
 
 def register_view(request):
     if request.method == 'POST':
@@ -177,8 +199,11 @@ def login_view(request):
                     return redirect('child_profile')  # Redirect to child profile completion page
             elif user.usertype == 'healthcare_provider':  # Healthcare provider
                 return redirect('health_home')  # Redirect to healthcare provider home page
-        else:
+            elif user.usertype == 'delivery_boy':  # Delivery boy
+                return redirect('delivery_mainpage')
+                    
             return render(request, 'login.html', {'error_message': 'Invalid Credentials!'})
+        
     return render(request, 'login.html')
 
 def about(request):
@@ -1154,17 +1179,33 @@ def edit_health_profile_view(request):
     health_profile = get_object_or_404(HealthProfile, user=request.user)
     
     if request.method == 'POST':
-        # Update the health profile
-        health_profile.health_center_name = request.POST.get('health_center_name')
-        health_profile.phone = request.POST.get('phone')
-        health_profile.address = request.POST.get('address')
-        health_profile.city = request.POST.get('city')
-        health_profile.license_number = request.POST.get('license_number')
-        
-        health_profile.save()
-        
-        messages.success(request, 'Health profile updated successfully.')
-        return redirect('view_health_profile')
+        try:
+            # Update the health profile
+            health_profile.health_center_name = request.POST.get('health_center_name')
+            health_profile.phone = request.POST.get('phone')
+            health_profile.address = request.POST.get('address')
+            health_profile.city = request.POST.get('city')
+            health_profile.license_number = request.POST.get('license_number')
+            
+            health_profile.save()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Health profile updated successfully.'
+                })
+            else:
+                messages.success(request, 'Health profile updated successfully.')
+                return redirect('view_health_profile')
+        except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Error updating profile: {str(e)}'
+                }, status=400)
+            else:
+                messages.error(request, f'Error updating profile: {str(e)}')
+                return redirect('view_health_profile')
     
     context = {
         'health_profile': health_profile,
@@ -1518,7 +1559,45 @@ def vaccination_history(request):
 
 
 def ecom_admin_home(request):
-    return render(request, 'ecom_admin_home.html')
+    # Get current date and month
+    today = timezone.now()
+    start_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    start_of_day = today.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Get statistics
+    total_categories = Category.objects.count()
+    total_products = Product.objects.count()
+    total_delivery_boys = User.objects.filter(usertype='delivery_boy').count()
+    total_orders = Order.objects.count()
+    
+    # Get order statistics
+    monthly_orders = Order.objects.filter(order_date__gte=start_of_month).count()
+    daily_orders = Order.objects.filter(order_date__gte=start_of_day).count()
+    completed_orders = Order.objects.filter(delivery_status='Delivered').count()
+    pending_orders = Order.objects.filter(delivery_status='Pending').count()
+
+    # Get recent orders for download
+    recent_orders = Order.objects.select_related(
+        'user',
+        'product',
+        'delivery_boy'
+    ).order_by('-order_date')[:10]
+
+    context = {
+        'total_categories': total_categories,
+        'total_products': total_products,
+        'total_delivery_boys': total_delivery_boys,
+        'total_orders': total_orders,
+        'monthly_orders': monthly_orders,
+        'daily_orders': daily_orders,
+        'completed_orders': completed_orders,
+        'pending_orders': pending_orders,
+        'recent_orders': recent_orders,
+        'current_month': today.strftime('%B %Y'),
+        'current_date': today.strftime('%Y-%m-%d')
+    }
+    
+    return render(request, 'ecom_admin_home.html', context)
 
 def add_category(request):
     if request.method == 'POST':
@@ -2006,8 +2085,14 @@ def payment_success(request):
 
 @login_required
 def my_orders(request):
+    from datetime import timedelta
     # Get all orders for the current user, ordered by date (newest first)
     orders = Order.objects.filter(user=request.user).order_by('-order_date')
+    
+    # Calculate expected delivery date for each order
+    for order in orders:
+        order.expected_delivery_date = order.order_date + timedelta(days=7)
+    
     return render(request, 'my_orders.html', {'orders': orders})
 
 @login_required
@@ -2076,17 +2161,55 @@ def download_receipt(request, order_id):
     p.save()
     return response
 
-
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 @login_required
 def view_orders(request):
     # Use select_related to fetch related data efficiently
-    orders = Order.objects.select_related(
+    orders_list = Order.objects.select_related(
         'user',
-        'product'
+        'product',
+        'delivery_boy'
     ).prefetch_related(
-        'user__parentprofile_set'  # Prefetch related ParentProfile data
-    ).all().order_by('-order_date')
-    return render(request, 'view_orders.html', {'orders': orders})
+        'user__parentprofile_set'
+    ).order_by('-order_date')
+
+    # Calculate delivery statistics
+    total_deliveries = Order.objects.filter(delivery_boy__isnull=False).count()
+    completed_deliveries = Order.objects.filter(
+        delivery_boy__isnull=False,
+        delivery_status='Delivered'
+    ).count()
+    pending_deliveries = total_deliveries - completed_deliveries
+
+    # Pagination with error handling
+    try:
+        page = int(request.GET.get('page', 1))
+        if page < 1:
+            page = 1
+    except (TypeError, ValueError):
+        page = 1
+    
+    paginator = Paginator(orders_list, 7)  # Show 7 orders per page
+    
+    try:
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        orders = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        orders = paginator.page(paginator.num_pages)
+
+    context = {
+        'orders': orders,
+        'total_deliveries': total_deliveries,
+        'completed_deliveries': completed_deliveries,
+        'pending_deliveries': pending_deliveries,
+        'current_page': page,
+        'total_pages': paginator.num_pages
+    }
+    
+    return render(request, 'view_orders.html', context)
 
 @login_required
 def download_adminreciept(request, order_id):
@@ -2215,25 +2338,45 @@ def upload_prescription(request):
                 return JsonResponse({'error': 'No file uploaded'})
 
             image = request.FILES['prescription']
-            image_path = os.path.join(settings.MEDIA_ROOT, 'medicine_images', image.name)
+            
+            # Validate file type
+            if not image.content_type.startswith('image/'):
+                return JsonResponse({'error': 'Please upload a valid image file'})
 
-            # Ensure directory exists
-            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            # Create media directory if it doesn't exist
+            media_root = os.path.join(settings.BASE_DIR, 'media', 'medicine_images')
+            os.makedirs(media_root, exist_ok=True)
+
+            # Save the image with a unique name
+            image_name = f"prescription_{image.name}"
+            image_path = os.path.join(media_root, image_name)
 
             # Save the image
             with open(image_path, 'wb+') as destination:
                 for chunk in image.chunks():
                     destination.write(chunk)
 
+            # Check if model exists, if not train it
+            model_path = os.path.join(settings.BASE_DIR, 'app', 'train_models', 'medicine_model.pkl')
+            if not os.path.exists(model_path):
+                print("Model not found. Training new model...")
+                train_medicine_model()
+
             # Get medicine details
             medicine_details = predict_medicine_details(image_path)
 
             # Check for errors in the returned dictionary
             if 'error' in medicine_details:
-                return JsonResponse({'error': medicine_details['error']})  # Return error message
+                return JsonResponse({'error': medicine_details['error']})
 
             # Construct response with the predicted medicine details
-            medicine_details['image_url'] = os.path.join(settings.MEDIA_URL, 'medicine_images', image.name)
+            medicine_details['image_url'] = os.path.join(settings.MEDIA_URL, 'medicine_images', image_name)
+
+            # Clean up the uploaded image
+            try:
+                os.remove(image_path)
+            except:
+                pass  # Ignore cleanup errors
 
             return JsonResponse({'medicines': [medicine_details]})
 
@@ -2270,7 +2413,11 @@ from .models import Product, Category
 
 
 def toy_assistant_page(request):
-    return render(request, 'toy_assistant.html')
+    # Add any necessary context data
+    context = {
+        'unread_notifications_count': 0,  # You can update this based on your notification system
+    }
+    return render(request, 'toy_assistant.html', context)
 
 from django.db.models import Q
 from django.http import JsonResponse
@@ -2353,13 +2500,13 @@ def toy_recommendations(request):
                     image = product.images.first()
                     
                     recommendation = {
+                        "id": product.id,  # Add the product ID
                         "name": product.product_name,
                         "description": description.description[:200] + "..." if description and len(description.description) > 200 else description.description if description else "",
                         "price": float(product.price),
-                        "category": product.category.name,
+                        "category": product.category.name if product.category else "Uncategorized",
                         "stock": product.stock,
                         "image": image.image.url if image else "/static/img/toys/default.jpg",
-                        "url": f"/products/{product.id}",
                     }
                     recommendations.append(recommendation)
                     print(f"Added recommendation: {product.product_name}")  # Debug log
@@ -2403,15 +2550,15 @@ def toy_recommendations(request):
             return JsonResponse({
                 'recommendations': [],
                 'speech_response': "Sorry, I couldn't understand your request. Please try again."
-            }, status=200)
+            }, status=400)
         except Exception as e:
             print(f"Unexpected Error: {str(e)}")  # Debug log
             return JsonResponse({
                 'recommendations': [],
                 'speech_response': "An error occurred. Please try again."
-            }, status=200)
+            }, status=500)
 
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def chat_api(request):
@@ -2502,3 +2649,731 @@ def delete_appointment(request, appointment_id):
         messages.error(request, f'Error cancelling appointment: {str(e)}')
     
     return redirect('appointment_success')
+
+
+from django.contrib.auth.hashers import make_password
+import random
+import string
+from .models import DeliveryBoyProfile
+
+@login_required
+def delivery_manage(request):
+    return render(request, 'delivery_manage.html')
+
+
+@login_required
+def admin_deliveryhome(request):
+    return render(request, 'admin_deliveryhome.html')
+
+@login_required
+def add_delivery_boy(request):
+    if request.method == 'POST':
+        username = request.POST.get('email')  # Using email as username
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        
+        # Generate random password
+        password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        
+        try:
+            # Create user
+            user = User.objects.create(
+                username=username,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                password=make_password(password),
+                usertype='delivery_boy',
+                status='active'
+            )
+            
+            # Create delivery boy profile
+            DeliveryBoyProfile.objects.create(user=user)
+            
+            # Send email with credentials
+            subject = 'Your Delivery Boy Account Credentials'
+            html_message = render_to_string('delivery_boy_credentials_email.html', {
+                'first_name': first_name,
+                'email': email,
+                'password': password,
+                'login_url': request.build_absolute_uri('/login/')
+            })
+            plain_message = strip_tags(html_message)
+            
+            send_mail(
+                subject,
+                plain_message,
+                'nurturenest02@example.com',
+                [email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'Delivery boy account created successfully!')
+            return redirect('ecom_admin_home')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating delivery boy account: {str(e)}')
+    
+    return render(request, 'add_delivery_boy.html')
+
+
+@login_required
+def delivery_home(request):
+    print(f"Delivery home accessed by user: {request.user.email}")  # Debug log
+    
+    if request.user.usertype != 'delivery_boy':
+        print(f"Invalid user type: {request.user.usertype}")  # Debug log
+        return redirect('login')
+        
+    try:
+        profile = DeliveryBoyProfile.objects.get(user=request.user)
+        print("Profile found")  # Debug log
+    except DeliveryBoyProfile.DoesNotExist:
+        print("Creating new profile")  # Debug log
+        profile = DeliveryBoyProfile.objects.create(user=request.user)
+        
+    if request.method == 'POST':
+        print("Processing POST request")  # Debug log
+        try:
+            # Update profile fields
+            profile.phone_number = request.POST.get('phone_number')
+            profile.address = request.POST.get('address')
+            profile.city = request.POST.get('city')
+            profile.state = request.POST.get('state')
+            profile.pincode = request.POST.get('pincode')
+            profile.id_proof_type = request.POST.get('id_proof_type')
+            profile.id_proof_number = request.POST.get('id_proof_number')
+            profile.vehicle_type = request.POST.get('vehicle_type')
+            profile.vehicle_number = request.POST.get('vehicle_number')
+            profile.profile_completed = True
+            profile.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            print("Profile updated successfully")  # Debug log
+        except Exception as e:
+            print(f"Error updating profile: {str(e)}")  # Debug log
+            messages.error(request, f'Error updating profile: {str(e)}')
+            
+    return render(request, 'delivery_mainpage.html', {'profile': profile})
+
+@login_required
+def deliveryboy_profile(request):
+    try:
+        profile = DeliveryBoyProfile.objects.get(user=request.user)
+        
+        # Get delivery statistics
+        total_deliveries = Order.objects.filter(delivery_boy=request.user).count()
+        completed_deliveries = Order.objects.filter(
+            delivery_boy=request.user,
+            delivery_status='Delivered'
+        ).count()
+        
+        context = {
+            'profile': profile,
+            'total_deliveries': total_deliveries,
+            'completed_deliveries': completed_deliveries,
+            'pending_deliveries': total_deliveries - completed_deliveries
+        }
+    except DeliveryBoyProfile.DoesNotExist:
+        context = {
+            'profile': None,
+            'total_deliveries': 0,
+            'completed_deliveries': 0,
+            'pending_deliveries': 0
+        }
+    
+    return render(request, 'deliveryboy_profile.html', context)
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def view_delivery_boys(request):
+    # Update the filter to use 'usertype' instead of 'user_type'
+    delivery_boys = User.objects.filter(
+        usertype='delivery_boy'  # Changed from user_type to usertype
+    ).select_related(
+        'deliveryboyprofile'
+    ).order_by('id')
+    
+    return render(request, 'view_deliveryboys.html', {'delivery_boys': delivery_boys})
+
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+import logging
+
+logger = logging.getLogger(__name__)
+
+@login_required
+def get_delivery_boy_details(request, delivery_boy_id):
+    logger.debug(f"Fetching details for delivery boy ID: {delivery_boy_id}")
+    
+    try:
+        # Get the delivery boy with related profile
+        delivery_boy = User.objects.select_related('deliveryboyprofile').get(
+            id=delivery_boy_id,
+            usertype='delivery_boy'
+        )
+        logger.debug(f"Found delivery boy: {delivery_boy.email}")
+        
+        # Get the profile
+        profile = delivery_boy.deliveryboyprofile
+        
+        # Prepare the response data
+        data = {
+            'full_name': delivery_boy.get_full_name(),
+            'email': delivery_boy.email,
+            'phone_number': getattr(profile, 'phone_number', 'N/A'),
+            'address': getattr(profile, 'address', 'N/A'),
+            'city': getattr(profile, 'city', 'N/A'),
+            'state': getattr(profile, 'state', 'N/A'),
+            'pincode': getattr(profile, 'pincode', 'N/A'),
+            'id_proof_type': getattr(profile, 'id_proof_type', 'N/A'),
+            'id_proof_number': getattr(profile, 'id_proof_number', 'N/A'),
+            'vehicle_type': getattr(profile, 'vehicle_type', 'N/A'),
+            'vehicle_number': getattr(profile, 'vehicle_number', 'N/A'),
+        }
+        
+        # Only add delivery statistics if Order model exists
+        try:
+            total_deliveries = Order.objects.filter(delivery_boy=delivery_boy).count()
+            completed_deliveries = Order.objects.filter(
+                delivery_boy=delivery_boy,
+                delivery_status='Delivered'
+            ).count()
+            
+            data.update({
+                'total_deliveries': total_deliveries,
+                'completed_deliveries': completed_deliveries,
+                'pending_deliveries': total_deliveries - completed_deliveries,
+            })
+        except Exception as e:
+            logger.warning(f"Could not fetch delivery statistics: {str(e)}")
+            data.update({
+                'total_deliveries': 0,
+                'completed_deliveries': 0,
+                'pending_deliveries': 0,
+            })
+        
+        logger.debug(f"Returning data: {data}")
+        return JsonResponse(data)
+    
+    except ObjectDoesNotExist as e:
+        logger.error(f"Delivery boy not found: {str(e)}")
+        return JsonResponse({'error': 'Delivery boy not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error fetching delivery boy details: {str(e)}")
+        return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+    
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .models import Order, User, DeliveryBoyProfile, ParentProfile
+
+@login_required
+def get_available_delivery_boys(request, order_id):
+    try:
+        # Get order and customer details
+        order = Order.objects.select_related('user').get(id=order_id)
+        customer_profile = ParentProfile.objects.get(user=order.user)
+        customer_pincode = customer_profile.pincode
+
+        # Get delivery boys with matching pincode
+        delivery_boys = User.objects.filter(
+            usertype='delivery_boy',
+            status='active',
+            deliveryboyprofile__pincode=customer_pincode
+        ).select_related('deliveryboyprofile')
+
+        delivery_boys_data = [{
+            'id': boy.id,
+            'name': f"{boy.first_name} {boy.last_name}",
+            'phone': boy.deliveryboyprofile.phone_number,
+            'address': boy.deliveryboyprofile.address,
+            'city': boy.deliveryboyprofile.city,
+            'pincode': boy.deliveryboyprofile.pincode
+        } for boy in delivery_boys]
+
+        return JsonResponse({
+            'success': True,
+            'delivery_boys': delivery_boys_data,
+            'customer': {
+                'name': order.user.get_full_name(),
+                'address': customer_profile.address,
+                'pincode': customer_profile.pincode,
+                'phone': customer_profile.contact_no
+            },
+            'order': {
+                'id': order.id,
+                'product': order.product.product_name,
+                'quantity': order.quantity,
+                'amount': str(order.total_amount)
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_POST
+def assign_delivery_boy(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        delivery_boy_id = data.get('delivery_boy_id')
+
+        print(f"Assigning order {order_id} to delivery boy {delivery_boy_id}")  # Debug print
+
+        # Get the order and delivery boy
+        order = Order.objects.get(id=order_id)
+        delivery_boy = User.objects.get(id=delivery_boy_id)
+
+        # Update order
+        order.delivery_boy = delivery_boy
+        order.delivery_status = 'Pending'
+        order.save()
+
+        print(f"Order assigned successfully. Status: {order.delivery_status}")  # Debug print
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Delivery boy assigned successfully',
+            'order_id': order_id,
+            'delivery_status': order.delivery_status,
+            'delivery_boy_name': delivery_boy.get_full_name() or delivery_boy.username
+        })
+
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Order not found'
+        })
+    except User.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Delivery boy not found'
+        })
+    except Exception as e:
+        print(f"Error in assign_delivery_boy: {str(e)}")  # Debug print
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+@login_required
+def get_assigned_delivery_boy(request, order_id):
+    try:
+        # Get the order with related user and parent profile
+        order = Order.objects.select_related(
+            'delivery_boy',
+            'user'
+        ).get(id=order_id)
+        
+        if not order.delivery_boy:
+            return JsonResponse({
+                'success': False,
+                'error': 'No delivery boy assigned to this order'
+            })
+        
+        # Get the delivery boy profile
+        delivery_boy_profile = DeliveryBoyProfile.objects.get(user=order.delivery_boy)
+        
+        return JsonResponse({
+            'success': True,
+            'delivery_boy': {
+                'name': f"{order.delivery_boy.first_name} {order.delivery_boy.last_name}",
+                'phone': delivery_boy_profile.phone_number,
+                'address': delivery_boy_profile.address,
+                'city': delivery_boy_profile.city,
+                'pincode': delivery_boy_profile.pincode
+            },
+            'delivery_status': order.delivery_status
+        })
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Order not found'
+        })
+    except DeliveryBoyProfile.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Delivery boy profile not found'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+        
+@login_required
+def delivery_mainpage(request):
+    if request.user.usertype != 'delivery_boy':
+        return redirect('home')
+    
+    try:
+        # Get all orders assigned to this delivery boy
+        assigned_orders = Order.objects.filter(
+            delivery_boy=request.user
+        ).select_related(
+            'user',
+            'product'
+        ).prefetch_related(
+            'user__parentprofile_set'
+        ).order_by('-order_date')
+
+        print(f"Found {assigned_orders.count()} orders for delivery boy {request.user.id}")  # Debug print
+
+        return render(request, 'delivery_mainpage.html', {
+            'assigned_orders': assigned_orders
+        })
+    except Exception as e:
+        print(f"Error in delivery_mainpage: {str(e)}")  # Debug print
+        return render(request, 'delivery_mainpage.html', {
+            'assigned_orders': [],
+            'error': str(e)
+        })
+    
+@login_required
+def assigned_orders(request):  # New view for assigned orders page
+    if request.user.usertype != 'delivery_boy':
+        return redirect('home')
+    
+    # Fetch orders assigned to the logged-in delivery boy
+    orders = Order.objects.filter(
+        delivery_boy=request.user
+    ).select_related('user', 'product').order_by('-order_date')
+    
+    return render(request, 'assigned_orders.html', {'orders': orders})
+
+@require_POST
+def update_delivery_status(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        new_status = data.get('status')
+        
+        # Verify the order belongs to this delivery boy
+        order = Order.objects.get(id=order_id, delivery_boy=request.user)
+        
+        # Validate status transition
+        valid_transitions = {
+            'Pending': 'Out for Delivery',
+            'Out for Delivery': 'Delivered'
+        }
+        
+        if order.delivery_status in valid_transitions and valid_transitions[order.delivery_status] == new_status:
+            order.delivery_status = new_status
+            order.save()
+            return JsonResponse({
+                'success': True,
+                'message': f'Order status updated to {new_status}'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid status transition'
+            })
+            
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False, 
+            'error': 'Order not found or not assigned to you'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+def generate_otp():
+    return ''.join([str(random.randint(0, 9)) for _ in range(6)])
+
+@require_POST
+def send_delivery_otp(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        
+        # Get order and customer details
+        order = Order.objects.select_related('user').get(
+            id=order_id,
+            delivery_boy=request.user
+        )
+        
+        # Generate OTP
+        otp = generate_otp()
+        
+        # Store OTP in cache with 5 minutes expiry
+        cache_key = f'delivery_otp_{order_id}'
+        cache.set(cache_key, otp, timeout=300)  # 5 minutes
+        
+        # Get customer email
+        customer_email = order.user.email
+        
+        # Send email to customer
+        try:
+            send_mail(
+                'Delivery Verification OTP',
+                f'Your delivery verification OTP is: {otp}. Valid for 5 minutes.',
+                settings.DEFAULT_FROM_EMAIL,
+                [customer_email],
+                fail_silently=False,
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'OTP sent successfully'
+            })
+        except Exception as e:
+            print(f"Email sending error: {str(e)}")  # For debugging
+            return JsonResponse({
+                'success': False,
+                'error': 'Failed to send email'
+            })
+            
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Order not found'
+        })
+    except Exception as e:
+        print(f"General error: {str(e)}")  # For debugging
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+@require_POST
+def verify_delivery_otp(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        submitted_otp = data.get('otp')
+        
+        # Get stored OTP from cache
+        cache_key = f'delivery_otp_{order_id}'
+        stored_otp = cache.get(cache_key)
+        
+        if not stored_otp:
+            return JsonResponse({
+                'success': False,
+                'error': 'OTP expired. Please request a new one.'
+            })
+        
+        if submitted_otp != stored_otp:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid OTP'
+            })
+        
+        # Clear the OTP from cache
+        cache.delete(cache_key)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'OTP verified successfully'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+@require_POST
+def update_delivery_status(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        new_status = data.get('status')
+        
+        order = Order.objects.get(id=order_id, delivery_boy=request.user)
+        order.delivery_status = new_status
+        order.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Status updated to {new_status}'
+        })
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Order not found'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+from django.contrib.auth import update_session_auth_hash
+from django.http import JsonResponse
+import json
+
+def deliveryboy_pswd(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user = request.user
+        
+        if user.check_password(data['current_password']):
+            user.set_password(data['new_password'])
+            user.save()
+            update_session_auth_hash(request, user)  # Keep user logged in
+            return JsonResponse({'success': True, 'message': 'Password changed successfully'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Current password is incorrect'}, status=400)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+import json
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt  # Only for testing, remove in production
+@require_http_methods(["POST"])
+def deliveryboy_updateprofile(request):
+    try:
+        data = json.loads(request.body)
+        
+        # Get or create the profile
+        profile, created = DeliveryBoyProfile.objects.get_or_create(user=request.user)
+        
+        # Update profile fields
+        profile.phone_number = data.get('phone_number')
+        profile.address = data.get('address')
+        profile.city = data.get('city')
+        profile.state = data.get('state')
+        profile.pincode = data.get('pincode')
+        profile.id_proof_number = data.get('id_proof_number')
+        profile.vehicle_type = data.get('vehicle_type')
+        profile.vehicle_number = data.get('vehicle_number')
+        profile.profile_completed = True
+        
+        # Save the profile
+        profile.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Profile updated successfully'
+        })
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'An error occurred while updating profile'
+        }, status=400)
+
+def get_delivery_profile(request):
+    try:
+        profile = DeliveryBoyProfile.objects.filter(user=request.user).first()
+        if profile:
+            data = {
+                'phone_number': profile.phone_number,
+                'address': profile.address,
+                'city': profile.city,
+                'state': profile.state,
+                'pincode': profile.pincode,
+                'id_proof_number': profile.id_proof_number,
+                'vehicle_type': profile.vehicle_type,
+                'vehicle_number': profile.vehicle_number
+            }
+            return JsonResponse({'success': True, 'profile': data})
+        return JsonResponse({'success': True, 'profile': None})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+import csv
+from datetime import datetime
+import xlsxwriter
+from io import BytesIO
+def download_orders(request):
+    # Get filter parameters
+    report_type = request.GET.get('type', 'all')
+    date = request.GET.get('date')
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+    
+    # Base queryset
+    orders = Order.objects.select_related(
+        'user',
+        'product',
+        'delivery_boy'
+    ).order_by('-order_date')
+    
+    # Apply filters based on report type
+    if report_type == 'daily' and date:
+        orders = orders.filter(order_date__date=date)
+    elif report_type == 'monthly' and month and year:
+        orders = orders.filter(order_date__month=month, order_date__year=year)
+    
+    # Create Excel file
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    
+    # Define formats
+    header_format = workbook.add_format({
+        'bold': True,
+        'bg_color': '#4B5563',
+        'font_color': 'white',
+        'border': 1
+    })
+    
+    cell_format = workbook.add_format({
+        'border': 1,
+        'text_wrap': True
+    })
+    
+    # Write headers
+    headers = [
+        'Order ID', 'Customer', 'Product', 'Quantity', 'Amount',
+        'Order Date', 'Payment Type', 'Payment Status',
+        'Delivery Status', 'Delivery Boy'
+    ]
+    
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header, header_format)
+    
+    # Write data
+    for row, order in enumerate(orders, start=1):
+        worksheet.write(row, 0, order.id, cell_format)
+        worksheet.write(row, 1, order.user.username, cell_format)
+        worksheet.write(row, 2, order.product.product_name, cell_format)
+        worksheet.write(row, 3, order.quantity, cell_format)
+        worksheet.write(row, 4, f'₹{order.total_amount}', cell_format)
+        worksheet.write(row, 5, order.order_date.strftime('%Y-%m-%d %H:%M'), cell_format)
+        worksheet.write(row, 6, order.payment_type, cell_format)
+        worksheet.write(row, 7, order.payment_status, cell_format)
+        worksheet.write(row, 8, order.delivery_status, cell_format)
+        worksheet.write(row, 9, order.delivery_boy.username if order.delivery_boy else 'Not Assigned', cell_format)
+    
+    # Adjust column widths
+    for col in range(len(headers)):
+        worksheet.set_column(col, col, 15)
+    
+    # Generate filename
+    if report_type == 'daily':
+        filename = f'orders_daily_{date}.xlsx'
+    elif report_type == 'monthly':
+        filename = f'orders_monthly_{year}_{month}.xlsx'
+    else:
+        filename = f'orders_all_{datetime.now().strftime("%Y%m%d")}.xlsx'
+    
+    workbook.close()
+    output.seek(0)
+    
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

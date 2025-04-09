@@ -279,7 +279,7 @@
                                 <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
                                 <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
                                 <a href="{% url 'health_assistant_page' %}" class="nav-item nav-link">Health Assistant</a>
-
+                                <a href="{% url 'toy_assistant' %}" class="nav-item nav-link">Toy Assistant</a>
                                 <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                             </div>
                         </div>
@@ -582,18 +582,33 @@
             const file = fileInput.files[0];
             
             if (!file) {
-                addMessageToChat('system', 'Please select a prescription image first');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No File Selected',
+                    text: 'Please select a prescription image first'
+                });
                 return;
             }
         
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                addMessageToChat('system', 'Please upload an image file');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload an image file (JPG, PNG, etc.)'
+                });
                 return;
             }
 
-            // Show loading message
-            const loadingMessage = addMessageToChat('system', 'Analyzing prescription...');
+            // Show loading state
+            Swal.fire({
+                title: 'Analyzing Prescription',
+                text: 'Please wait while we process your prescription...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             const formData = new FormData();
             formData.append('prescription', file);
@@ -609,39 +624,59 @@
 
                 const data = await response.json();
         
-                // Remove loading message
-                loadingMessage.remove();
+                // Close loading state
+                Swal.close();
 
                 if (data.error) {
-                    addMessageToChat('system', `Error: ${data.error}`);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error
+                    });
                     return;
                 }
 
                 if (!data.medicines || data.medicines.length === 0) {
-                    addMessageToChat('system', 'No medicines found in the prescription. Please ensure the image is clear and contains medicine names.');
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'No Medicines Found',
+                        text: 'No medicines were detected in the prescription. Please ensure the image is clear and contains medicine names.'
+                    });
                     return;
                 }
 
-                // Display medicine details in chat
-                data.medicines.forEach(medicine => {
-                    const medicineDetails = `
-Medicine: ${medicine.name}
-Usage: ${medicine.usage}
-Age Group: ${medicine.age_group}
-Advantages: ${medicine.advantages}
-Side Effects: ${medicine.side_effects}
+                // Display medicine details in a modal
+                const medicineDetails = data.medicines.map(medicine => `
+                    <div class="medicine-card mb-4 p-3 border rounded">
+                        <h5 class="text-primary mb-3">${medicine.name}</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Usage:</strong> ${medicine.usage}</p>
+                                <p><strong>Age Group:</strong> ${medicine.age_group}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Advantages:</strong> ${medicine.advantages}</p>
+                                <p><strong>Side Effects:</strong> ${medicine.side_effects}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
 
-Note: Always consult with a healthcare professional before taking any medication.`;
-                    
-                    addMessageToChat('assistant', medicineDetails);
-                });
-
-            } catch (error) {
-                // Remove loading message
-                loadingMessage.remove();
+                // Update modal content
+                document.getElementById('medicineDetails').innerHTML = medicineDetails;
                 
+                // Show the modal
+                const medicineModal = new bootstrap.Modal(document.getElementById('medicineModal'));
+                medicineModal.show();
+
+               
+            } catch (error) {
                 console.error('Error:', error);
-                addMessageToChat('system', 'An error occurred while processing the prescription. Please try again.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while processing the prescription. Please try again.'
+                });
             }
         }
         

@@ -1,0 +1,689 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Delivery Boys | Admin</title>
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #f5f5f5; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        .error {
+            color: red;
+            font-size: 0.875rem;
+        }
+        
+        .text-success {
+            color: green;
+            font-size: 0.875rem;
+        }
+        
+
+    .order-table th, .order-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .order-table tr:hover {
+        background-color: #f8fafc;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .status-delivered {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    .status-processing {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    /* Add these new table styles */
+    .table-container {
+        margin: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .order-table th {
+        background-color: #f8f9fa;
+        color: #374151;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .order-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #4b5563;
+    }
+
+    .order-table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    .order-table th:first-child,
+    .order-table td:first-child {
+        padding-left: 24px;
+    }
+
+    .order-table th:last-child,
+    .order-table td:last-child {
+        padding-right: 24px;
+    }
+
+    .table-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table-header h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+        text-align: center;
+    }
+
+        /* Additional styles for delivery boy cards */
+        .delivery-boy-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .delivery-boy-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 2rem;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #EF4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background-color: #DC2626;
+        }
+
+        .modal-header {
+            padding-right: 4rem; /* Make space for close button */
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 1rem;
+        }
+
+        .detail-section {
+            background-color: #F9FAFB;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #E5E7EB;
+        }
+
+        .detail-section h3 {
+            color: #1F2937;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #4B5563;
+        }
+
+        .detail-value {
+            color: #1F2937;
+        }
+    </style>
+</head>
+
+<body>
+    <body>
+        <!--Container -->
+        <div class="mx-auto bg-grey-400">
+         <!--Screen-->
+         <div class="min-h-screen flex flex-col">
+             <!--Header Section Starts Here-->
+             <header class="bg-nav p-4">
+                 <div class="flex justify-between">
+                     <div class="inline-flex items-center">
+                         <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                         <h1 class="text-white text-2xl">NurtureNest</h1>
+                     </div>
+                     <div class="flex items-center profile-container">
+                         <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                         <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                         <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                             <a href="#">My Profile</a>
+                             <a href="{% url 'logout' %}">Logout</a>
+                         </div>
+                     </div>
+                 </div>
+             </header>
+             <!--/Header-->
+ 
+             <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'ecom_admin_home' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                           <i class="fas fa-plus-square mx-2"></i>
+                           <a href="{% url 'add_category' %}" class="no-underline">Add Category</a>
+                       </li>
+                       <li class="sidebar-link">
+                           <i class="fas fa-folder-open mx-2"></i>
+                           <a href="{% url 'view_categories' %}" class="no-underline">View Category</a>
+                       </li>
+                       <li class="sidebar-link">
+                           <i class="fas fa-box mx-2"></i>
+                           <a href="{% url 'add_product' %}" class="no-underline">Add Products</a>
+                       </li>
+                       <li class="sidebar-link">
+                           <i class="fas fa-boxes mx-2"></i>
+                           <a href="{% url 'view_addproducts' %}" class="no-underline">View Products</a>
+                       </li>
+                       <li class="sidebar-link">
+                           <i class="fas fa-truck mx-2"></i>
+                           <a href="{% url 'add_delivery_boy' %}" class="no-underline">Add Delivery Boy</a>
+                       </li>
+                       <li class="sidebar-link">
+                           <i class="fas fa-truck-loading mx-2"></i>
+                           <a href="{% url 'view_delivery_boys' %}" class="no-underline">View Delivery Boy</a>
+                       </li>
+                       <li class="sidebar-link">
+                           <i class="fas fa-shopping-bag mx-2"></i>
+                           <a href="{% url 'view_orders' %}" class="no-underline">All Orders</a>
+                       </li>
+                   </ul>
+               </aside>
+<!-- sidebar -->
+                
+            <!--Grid Form-->
+
+                <!-- Main Content -->
+                <main class="flex-1 p-6">
+                    <div class="main-content">
+                        <div class="flex justify-between mb-4">
+                            <h2 class="text-xl font-semibold">Delivery Boys</h2>
+                            <div class="space-x-2">
+                                <a href="{% url 'add_delivery_boy' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded inline-flex items-center">
+                                    <i class="fas fa-plus mr-2"></i>Add New
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto bg-white rounded-lg shadow">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600 text-sm leading-normal">
+                                        <th class="py-3 px-4 text-left">ID</th>
+                                        <th class="py-3 px-4 text-left">Name</th>
+                                        <th class="py-3 px-4 text-left">Email</th>
+                                        <th class="py-3 px-4 text-left">Phone</th>
+                                        <th class="py-3 px-4 text-left">City</th>
+                                        <th class="py-3 px-4 text-left">Pincode</th>
+                                        <th class="py-3 px-4 text-left">Status</th>
+                                        <th class="py-3 px-4 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-600 text-sm">
+                                    {% for delivery_boy in delivery_boys %}
+                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                        <td class="py-3 px-4">{{ delivery_boy.id }}</td>
+                                        <td class="py-3 px-4">{{ delivery_boy.get_full_name }}</td>
+                                        <td class="py-3 px-4">{{ delivery_boy.email }}</td>
+                                        <td class="py-3 px-4">{{ delivery_boy.deliveryboyprofile.phone_number }}</td>
+                                        <td class="py-3 px-4">{{ delivery_boy.deliveryboyprofile.city }}</td>
+                                        <td class="py-3 px-4">{{ delivery_boy.deliveryboyprofile.pincode }}</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 rounded-full text-xs 
+                                                {% if delivery_boy.is_active %}bg-green-100 text-green-800
+                                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                                {{ delivery_boy.is_active|yesno:"Active,Inactive" }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <button onclick="viewDetails('{{ delivery_boy.id }}')"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Copy the sidebar and profile toggle functions from view_orders.html
+        function sidebarToggle() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        }
+
+        function profileToggle() {
+            document.getElementById('ProfileDropDown').classList.toggle('hidden');
+        }
+
+        // Modified viewDetails function to use SweetAlert2
+        function viewDetails(deliveryBoyId) {
+            const url = `/app/get_delivery_boy_details/${deliveryBoyId}/`;
+            
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Create HTML content for SweetAlert2 with improved styling
+                const detailsHtml = `
+                    <div class="delivery-boy-details">
+                        <!-- Main Two-Column Layout -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <!-- Left Column -->
+                            <div class="space-y-4">
+                                <!-- Personal Information Section -->
+                                <div class="info-section">
+                                    <div class="section-header bg-blue-50 p-2 rounded-t-lg border-b border-blue-100">
+                                        <h4 class="font-semibold text-blue-800">
+                                            <i class="fas fa-user-circle text-blue-500 mr-2"></i>Personal Information
+                                        </h4>
+                                    </div>
+                                    <div class="section-content bg-white p-3 rounded-b-lg">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-user text-blue-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Name:</span>
+                                                <span class="font-medium ml-2">${data.full_name || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-envelope text-blue-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Email:</span>
+                                                <span class="font-medium ml-2">${data.email || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-phone text-blue-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Phone:</span>
+                                                <span class="font-medium ml-2">${data.phone_number || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ID Proof Section -->
+                                <div class="info-section">
+                                    <div class="section-header bg-purple-50 p-2 rounded-t-lg border-b border-purple-100">
+                                        <h4 class="font-semibold text-purple-800">
+                                            <i class="fas fa-id-card text-purple-500 mr-2"></i>ID Proof Details
+                                        </h4>
+                                    </div>
+                                    <div class="section-content bg-white p-3 rounded-b-lg">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-id-badge text-purple-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">ID Type:</span>
+                                                <span class="font-medium ml-2">${data.id_proof_type || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-hashtag text-purple-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">ID Number:</span>
+                                                <span class="font-medium ml-2">${data.id_proof_number || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="space-y-4">
+                                <!-- Address Section -->
+                                <div class="info-section">
+                                    <div class="section-header bg-green-50 p-2 rounded-t-lg border-b border-green-100">
+                                        <h4 class="font-semibold text-green-800">
+                                            <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>Address Details
+                                        </h4>
+                                    </div>
+                                    <div class="section-content bg-white p-3 rounded-b-lg">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-home text-green-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Address:</span>
+                                                <span class="font-medium ml-2">${data.address || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-city text-green-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">City:</span>
+                                                <span class="font-medium ml-2">${data.city || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-building text-green-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">State:</span>
+                                                <span class="font-medium ml-2">${data.state || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-map-pin text-green-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Pincode:</span>
+                                                <span class="font-medium ml-2">${data.pincode || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Vehicle Section -->
+                                <div class="info-section">
+                                    <div class="section-header bg-orange-50 p-2 rounded-t-lg border-b border-orange-100">
+                                        <h4 class="font-semibold text-orange-800">
+                                            <i class="fas fa-motorcycle text-orange-500 mr-2"></i>Vehicle Details
+                                        </h4>
+                                    </div>
+                                    <div class="section-content bg-white p-3 rounded-b-lg">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-car text-orange-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Vehicle Type:</span>
+                                                <span class="font-medium ml-2">${data.vehicle_type || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-tag text-orange-500 w-6"></i>
+                                                <span class="text-gray-600 ml-2">Vehicle Number:</span>
+                                                <span class="font-medium ml-2">${data.vehicle_number || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Statistics Section -->
+                        <div class="mt-4">
+                            <div class="info-section">
+                                <div class="section-header bg-indigo-50 p-2 rounded-t-lg border-b border-indigo-100">
+                                    <h4 class="font-semibold text-indigo-800">
+                                        <i class="fas fa-chart-line text-indigo-500 mr-2"></i>Delivery Statistics
+                                    </h4>
+                                </div>
+                                <div class="section-content bg-white p-3 rounded-b-lg">
+                                    <div class="flex justify-between items-center space-x-4">
+                                        <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-lg text-center flex-1">
+                                            <div class="bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1">
+                                                <i class="fas fa-box text-white"></i>
+                                            </div>
+                                            <div class="text-blue-800 text-lg font-bold">${data.total_deliveries || 0}</div>
+                                            <div class="text-blue-600 text-sm">Total</div>
+                                        </div>
+                                        <div class="stat-card bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-lg text-center flex-1">
+                                            <div class="bg-green-500 w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1">
+                                                <i class="fas fa-check-circle text-white"></i>
+                                            </div>
+                                            <div class="text-green-800 text-lg font-bold">${data.completed_deliveries || 0}</div>
+                                            <div class="text-green-600 text-sm">Completed</div>
+                                        </div>
+                                        <div class="stat-card bg-gradient-to-br from-yellow-50 to-yellow-100 p-3 rounded-lg text-center flex-1">
+                                            <div class="bg-yellow-500 w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1">
+                                                <i class="fas fa-clock text-white"></i>
+                                            </div>
+                                            <div class="text-yellow-800 text-lg font-bold">${data.pending_deliveries || 0}</div>
+                                            <div class="text-yellow-600 text-sm">Pending</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Show SweetAlert2 modal with custom styling
+                Swal.fire({
+                    title: '<i class="fas fa-user-circle text-3xl text-blue-500"></i> Delivery Boy Details',
+                    html: detailsHtml,
+                    width: '900px',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        container: 'delivery-boy-details-modal',
+                        popup: 'rounded-lg',
+                        title: 'text-2xl font-bold text-gray-800 mb-3',
+                        htmlContainer: 'text-left',
+                        closeButton: 'text-gray-500 hover:text-gray-700'
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to fetch delivery boy details',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        }
+
+        // Add CSRF token function if not already present
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

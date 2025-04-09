@@ -11,147 +11,144 @@
     <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
     <link rel="stylesheet" href="{% static 'dist/all.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
-    <title>Dashboard | Admin</title>
+    <title>Dashboard | NurtureNest Admin</title>
     <style>
         .bg-nav {
-            background-color: #4B5563; /* Dark gray for nav background */
+            background-color: #4B5563;
         }
 
         body {
-            background-color: #f0f4f8; /* Light gray background */
+            background-color: #f0f4f8;
         }
 
-        .bg-box-color {
-            background-color: #e69b95; /* Coral color for boxes */
-            border-left-width: 6px; /* Left border width */
-            height: 150px; /* Set height */
+        .stat-box {
+            background-color: #e69b95;
+            border-left: 6px solid #FF6F61;
+            height: 150px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: 10px; /* Space between boxes */
-            border-left: 6px solid #FF6F61; /* Border color */
-            border-radius: 8px; /* Rounded corners */
-            transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            margin: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .bg-box-color:hover {
-            background-color: #FF6F61; /* Slightly darker coral on hover */
-            transform: translateY(-5px); /* Lift effect on hover */
+        .stat-box:hover {
+            background-color: #FF6F61;
+            transform: translateY(-5px);
         }
 
-        .no-underline {
-            text-decoration: none;
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: white;
         }
 
-        .text-black {
-            color: black;
-        }
-
-        .font-bold {
+        .stat-title {
+            font-size: 1.1rem;
             font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .stat-row {
+                flex-direction: column;
+            }
+            .stat-box {
+                margin: 10px 0;
+            }
         }
 
         .sidebar-link {
             display: flex;
             align-items: center;
             padding: 1rem;
-            color: #F3F4F6; /* Light gray text */
+            color: #F3F4F6;
             font-weight: bold;
             font-size: 18px;
         }
 
         .sidebar-link:hover {
-            background-color: #1F2937; /* Darker gray on hover */
+            background-color: #1F2937;
         }
 
         .main-content {
             padding: 2rem;
-            background-color: #FFFFFF; /* White main content area */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            border-radius: 8px; /* Rounded corners */
+            background-color: #FFFFFF;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
 
         .footer {
-            background-color: #374151; /* Darker gray footer */
+            background-color: #374151;
             color: white;
             padding: 1rem;
             text-align: center;
         }
 
-        .icon-style {
-            font-size: 2rem; /* Larger icons */
-        }
-
-        .box-title {
-            margin-top: 1rem;
-            font-size: 1.25rem; /* Larger text */
-        }
-
-        .box-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        .box-container > div {
-            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
-            margin-bottom: 20px; /* Space between rows */
-        }
-
-        @media (max-width: 768px) {
-            .box-container > div {
-                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
-            }
-        }
-            
         .profile-container {
-            position: relative; /* Positioning for dropdown */
-            display: flex; /* Align items horizontally */
-            align-items: center; /* Center vertically */
+            position: relative;
+            display: flex;
+            align-items: center;
         }
         
         .profile-dropdown {
-            background-color: #4B5563; /* Dark gray background */
-            color: white; /* White text */
-            padding: 10px; /* Padding */
-            text-align: left; /* Align text left */
-            width: 200px; /* Set width */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            border-radius: 8px; /* Rounded corners */
-            position: absolute; /* Position dropdown absolutely */
-            top: 100%; /* Position below the container */
-            right: 0; /* Align to the right of the container */
-            margin-top: 8px; /* Space between text and dropdown */
-            display: none; /* Initially hidden */
-            z-index: 10; /* Ensure dropdown is above other content */
+            background-color: #4B5563;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            display: none;
+            z-index: 10;
         }
         
         .profile-dropdown a {
-            color: white; /* White text */
+            color: white;
             padding: 10px;
             display: block;
-            text-decoration: none; /* No underline */
+            text-decoration: none;
         }
         
         .profile-dropdown a:hover {
-            background-color: #1F2937; /* Darker gray on hover */
+            background-color: #1F2937;
         }
         
         .show {
-            display: block; /* Display when shown */
+            display: block;
         }
-        
-        
     </style>
 </head>
 
 <body>
-    <!--Container -->
     <div class="mx-auto bg-grey-400">
-        <!--Screen-->
         <div class="min-h-screen flex flex-col">
-            <!--Header Section Starts Here-->
+            <!-- Header -->
             <header class="bg-nav p-4">
                 <div class="flex justify-between">
                     <div class="inline-flex items-center">
@@ -167,10 +164,9 @@
                     </div>
                 </div>
             </header>
-            <!--/Header-->
 
             <div class="flex flex-1">
-                <!--Sidebar-->
+                <!-- Sidebar -->
                 <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
                     <ul class="list-reset">
                         <li class="sidebar-link">
@@ -178,94 +174,120 @@
                             <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
                         </li>
                         <li class="sidebar-link">
-                            <i class="fas fa-user-check mx-2"></i>
-                            <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
+                            <i class="fas fa-tags mx-2"></i>
+                            <a href="{% url 'add_category' %}" class="no-underline">Add Category</a>
                         </li>
                         <li class="sidebar-link">
-                            <i class="fas fa-syringe mx-2"></i>
-                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
+                            <i class="fas fa-folder-open mx-2"></i>
+                            <a href="{% url 'view_categories' %}" class="no-underline">View Category</a>
                         </li>
                         <li class="sidebar-link">
-                            <i class="fas fa-hospital mx-2"></i>
-                            <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
+                            <i class="fas fa-box mx-2"></i>
+                            <a href="{% url 'add_product' %}" class="no-underline">Add Products</a>
                         </li>
                         <li class="sidebar-link">
-                            <i class="fas fa-users mx-2"></i>
-                            <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
+                            <i class="fas fa-boxes mx-2"></i>
+                            <a href="{% url 'view_addproducts' %}" class="no-underline">View Products</a>
                         </li>
-
                         <li class="sidebar-link">
-                            <i class="fas fa-square-full mx-2"></i>
-                            <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
+                            <i class="fas fa-truck mx-2"></i>
+                            <a href="{% url 'add_delivery_boy' %}" class="no-underline">Add Delivery Boy</a>
                         </li>
-                        
+                        <li class="sidebar-link">
+                            <i class="fas fa-truck-loading mx-2"></i>
+                            <a href="{% url 'view_delivery_boys' %}" class="no-underline">View Delivery Boy</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-shopping-bag mx-2"></i>
+                            <a href="{% url 'view_orders' %}" class="no-underline">All Orders</a>
+                        </li>
+                       
                     </ul>
                 </aside>
-                <!--/Sidebar-->
-                <!--Main-->
+<!-- sidebar -->
+                <!-- Main Content -->
                 <main class="flex-1 p-6">
                     <div class="main-content">
-                        <!-- Stats Grid Starts Here -->
-                        <div class="box-container">
-                            <!-- Box 1 -->
-                            <div class="bg-box-color p-4">
-                                <div class="flex flex-col items-center">
-                                    </i> <i class="fa fa-plus"></i>
-                                    <a href="{% url 'add_category' %}" class="no-underline text-black text-lg font-bold box-title">
-                                        Add Category
-                                    </a>
-                                </div>
-                            </div>
-                            <!-- Box 2 -->
-                            <div class="bg-box-color p-4">
-                                <div class="flex flex-col items-center">
-                                    <i class="fa fa-folder-open"></i>
-                                    <a href="{% url 'view_categories' %}" class="no-underline text-black text-lg font-bold box-title">
-                                        View categories
-                                    </a>
-                                </div>
-                            </div>
-                            <!-- Box 3 -->
-                            <div class="bg-box-color p-4">
-                                <div class="flex flex-col items-center">
-                                    <i class="fa fa-folder-open"></i>
-                                    <a href="{% url 'add_product' %}" class="no-underline text-black text-lg font-bold box-title">
-                                        Add Products
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="bg-box-color p-4">
-                                <div class="flex flex-col items-center">
-                                    <i class="fa fa-folder-open"></i>
-                                    <a href="{% url 'view_addproducts' %}" class="no-underline text-black text-lg font-bold box-title">
-                                        View Added Products
-                                    </a>
-                                </div>
+                        <!-- First Row of Statistics -->
+                        <div class="stat-row">
+                            <!-- Total Categories -->
+                            <div class="stat-box">
+                                <i class="fas fa-folder-open stat-icon"></i>
+                                <div class="stat-title">Total Categories</div>
+                                <div class="stat-value">{{ total_categories }}</div>
                             </div>
 
-                             <div class="bg-box-color p-4">
-                                <div class="flex flex-col items-center">
-                                    <i class="fa fa-list"></i>
-                                    <a href="{% url 'view_orders' %}" class="no-underline text-black text-lg font-bold box-title">
-                                        View Recieved Orders
-                                    </a>
-                                </div>
-                            </div> 
-                           
+                            <!-- Total Products -->
+                            <div class="stat-box">
+                                <i class="fas fa-box stat-icon"></i>
+                                <div class="stat-title">Total Products</div>
+                                <div class="stat-value">{{ total_products }}</div>
+                            </div>
 
+                            <!-- Delivery Boys -->
+                            <div class="stat-box">
+                                <i class="fas fa-truck stat-icon"></i>
+                                <div class="stat-title">Delivery Boys</div>
+                                <div class="stat-value">{{ total_delivery_boys }}</div>
+                            </div>
                         </div>
-                        <!-- /Stats Grid Ends Here -->
+
+                        <!-- Second Row of Statistics -->
+                        <div class="stat-row">
+                            <!-- Total Orders -->
+                            <div class="stat-box">
+                                <i class="fas fa-shopping-cart stat-icon"></i>
+                                <div class="stat-title">Total Orders</div>
+                                <div class="stat-value">{{ total_orders }}</div>
+                            </div>
+
+                            <!-- Daily Orders -->
+                            <div class="stat-box">
+                                <i class="fas fa-calendar-day stat-icon"></i>
+                                <div class="stat-title">Daily Orders</div>
+                                <div class="stat-value">{{ daily_orders }}</div>
+                            </div>
+
+                            <!-- Monthly Orders -->
+                            <div class="stat-box">
+                                <i class="fas fa-calendar-alt stat-icon"></i>
+                                <div class="stat-title">Monthly Orders</div>
+                                <div class="stat-value">{{ monthly_orders }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Download Options -->
+                        <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                                <i class="fas fa-download mr-2"></i>
+                                Download Order Reports
+                            </h2>
+                            <div class="flex flex-wrap gap-6">
+                                <button onclick="downloadOrders('daily')" class="flex-1 basis-[calc(33.333%-1rem)] min-w-[300px] flex items-center justify-center p-6 bg-[#F4B8B8] text-gray-800 rounded-lg hover:bg-[#f3a3a3] transition-colors shadow-md">
+                                    <i class="fas fa-file-download text-2xl mr-3 text-white"></i>
+                                    <span class="text-lg font-semibold">Daily Orders</span>
+                                </button>
+                                <button onclick="downloadOrders('monthly')" class="flex-1 basis-[calc(33.333%-1rem)] min-w-[300px] flex items-center justify-center p-6 bg-[#F4B8B8] text-gray-800 rounded-lg hover:bg-[#f3a3a3] transition-colors shadow-md">
+                                    <i class="fas fa-file-export text-2xl mr-3 text-white"></i>
+                                    <span class="text-lg font-semibold">Monthly Orders</span>
+                                </button>
+                                <button onclick="downloadOrders('all')" class="flex-1 basis-[calc(33.333%-1rem)] min-w-[300px] flex items-center justify-center p-6 bg-[#F4B8B8] text-gray-800 rounded-lg hover:bg-[#f3a3a3] transition-colors shadow-md">
+                                    <i class="fas fa-file-archive text-2xl mr-3 text-white"></i>
+                                    <span class="text-lg font-semibold">All Orders</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </main>
-                <!--/Main-->
             </div>
-            <!--Footer-->
+
+            <!-- Footer -->
             <footer class="footer">
                 <p>&copy; 2024 NurtureNest. All rights reserved.</p>
             </footer>
-            <!--/Footer-->
         </div>
     </div>
+
     <!-- Scripts -->
     <script>
         function sidebarToggle() {
@@ -286,6 +308,23 @@
         window.onunload = function () {
             null
         };
+    </script>
+    <script>
+        function downloadOrders(type) {
+            let url = '';
+            switch(type) {
+                case 'daily':
+                    url = `/download-orders/?type=daily&date=${new Date().toISOString().split('T')[0]}`;
+                    break;
+                case 'monthly':
+                    url = `/download-orders/?type=monthly&month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}`;
+                    break;
+                case 'all':
+                    url = '/download-orders/?type=all';
+                    break;
+            }
+            window.location.href = url;
+        }
     </script>
 </body>
 

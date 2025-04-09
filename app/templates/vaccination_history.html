@@ -57,63 +57,84 @@
 
 <body>
 
-    <!-- Navbar start -->
-    <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
-        <div class="container px-0">
-            <nav class="navbar navbar-light navbar-expand-xl py-3">
-                <a href="{% url 'index' %}" class="navbar-brand">
-                    <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
-                </a>
-                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars text-primary"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto">
-                        <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
-                        <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
-                        <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
-                        
-                        <!-- Replace the existing notification link with this -->
+   <!-- Navbar start -->
+   <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
+    <div class="container px-0">
+        <nav class="navbar navbar-light navbar-expand-xl py-3">
+            <a href="{% url 'index' %}" class="navbar-brand">
+                <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
+            </a>
+            <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars text-primary"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav mx-auto">
+                    <a href="#" class="nav-item nav-link active">Home</a>
+                    <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
+                    <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
+                    <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
+                    
+                    <!-- Replace the existing notification link with this -->
 <a href="{% url 'notification' %}" class="nav-item nav-link position-relative">
-    <i class="fas fa-bell"></i>
-    {% if unread_notifications_count > 0 %}
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            {{ unread_notifications_count }}
-        </span>
-    {% endif %}
+<i class="fas fa-bell"></i>
+{% if unread_notifications_count > 0 %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ unread_notifications_count }}
+    </span>
+{% endif %}
 </a>
-          
+      
 <div class="nav-item dropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-        <i class="fa fa-hand-holding-heart"></i>
-    </a>
-    <div class="dropdown-menu m-0 bg-secondary rounded-0">
-        <a href="{% url 'view_feedingchart' %}" class="dropdown-item">FeedingChart</a>
-        <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
-    </div>
+<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+    <i class="fa fa-hand-holding-heart"></i>
+</a>
+<div class="dropdown-menu m-0 bg-secondary rounded-0">
+    <a href="{% url 'view_feedingchart' %}" class="dropdown-item">FeedingChart</a>
+    <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
+</div>
 </div>
 
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
-                                Hey,{{ user.get_full_name|default:user.username }}
-                            </a>
-                            <div class="dropdown-menu m-0 bg-secondary rounded-0">
-                                <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
-                                <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
 
-                                <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
-                            </div>
+<!-- Shop Dropdown -->
+<div class="nav-item dropdown">
+<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+    <i class="fas fa-shopping-bag"></i>
+</a>
+<div class="dropdown-menu m-0 bg-secondary rounded-0">
+    <a href="{% url 'wishlist' %}" class="dropdown-item">
+        <i class="far fa-heart me-2"></i>Wishlist
+    </a>
+    <a href="{% url 'cart' %}" class="dropdown-item">
+        <i class="fas fa-shopping-cart me-2"></i>Cart
+    </a>
+    <a href="{% url 'my_orders' %}" class="dropdown-item">
+        <i class="fas fa-history me-2"></i>Order History
+    </a> 
+   
+</div>
+</div>
+
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
+                            Hey,{{ user.get_full_name|default:user.username }}
+                        </a>
+                        <div class="dropdown-menu m-0 bg-secondary rounded-0">
+                            <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
+                            <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
+                            <a href="{% url 'health_assistant_page' %}" class="dropdown-item">Health Assistant</a>
+                            <a href="{% url 'toy_assistant' %}" class="dropdown-item">Toy Assistant</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                         </div>
-                        
                     </div>
-                
+                    
                 </div>
-            </nav>
-        </div>
+            
+            </div>
+        </nav>
     </div>
-    <!-- Navbar End -->
+</div>
+<!-- Navbar End -->
 
 
     <!-- Page Header Start -->

@@ -1,0 +1,692 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,admin templates, admin template, admin dashboard, free tailwind templates, tailwind example">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Dashboard | Delivery Main Page </title>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .bg-box-color {
+            background-color: #e69b95; /* Coral color for boxes */
+            border-left-width: 6px; /* Left border width */
+            height: 150px; /* Set height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px; /* Space between boxes */
+            border-left: 6px solid #FF6F61; /* Border color */
+            border-radius: 8px; /* Rounded corners */
+            transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        .bg-box-color:hover {
+            background-color: #FF6F61; /* Slightly darker coral on hover */
+            transform: translateY(-5px); /* Lift effect on hover */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #FFFFFF; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        
+
+            .form-group input:disabled,
+            .form-group textarea:disabled {
+                opacity: 0.9;
+                cursor: not-allowed;
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                transition: none;
+            }
+            
+            .form-group input:hover,
+            .form-group textarea:hover {
+                background-color: transparent;
+            }
+            
+            .bg-gray-700 {
+                transition: all 0.3s ease;
+            }
+            
+            .bg-gray-700:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            .form-group label {
+                font-weight: 500;
+            }
+            
+            .section-heading {
+                position: relative;
+                padding-bottom: 0.5rem;
+            }
+            
+            .section-heading:after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 1px;
+                background: linear-gradient(to right, #3B82F6, transparent);
+            }
+        
+    </style>
+</head>
+
+<body>
+    <!--Container -->
+    <div class="mx-auto bg-grey-400">
+        <!--Screen-->
+        <div class="min-h-screen flex flex-col">
+            <!--Header Section Starts Here-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!--/Header-->
+
+            <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'delivery_mainpage' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-user-check mx-2"></i>
+                            <a href="{% url 'delivery_home' %}" class="no-underline">My Profile</a>
+                        </li>
+                       
+                        
+                    </ul>
+                </aside>
+                <!--/Sidebar-->
+                <!--Main-->
+<main class="flex-1 p-6">
+    <div class="main-content bg-gray-800 rounded-lg">
+        <div class="flex">
+            <!-- Left Section - Profile Image and Stats -->
+            <div class="w-1/4 p-6 border-r border-gray-700">
+                <div class="flex flex-col items-center">
+                    <!-- Profile Image -->
+                    <div class="relative">
+                        <div class="w-32 h-32 rounded-full bg-gray-600 flex items-center justify-center mb-4">
+                            <i class="fas fa-user text-5xl text-gray-400"></i>
+                        </div>
+                        <div class="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2">
+                            <i class="fas fa-camera text-white"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Name and Role -->
+                    <h2 class="text-xl text-white font-bold mt-4">{{ request.user.get_full_name }}</h2>
+                    <p class="text-blue-400 mb-4">Delivery Partner</p>
+
+                    <!-- Delivery Stats -->
+                    <div class="w-full bg-gray-700 rounded-lg p-4 mt-4">
+                        <div class="text-center space-y-2">
+                            <p class="text-blue-400">Total Deliveries</p>
+                            <h3 class="text-2xl text-white font-bold">{{ total_deliveries }}</h3>
+                            
+                            <div class="border-t border-gray-600 my-2"></div>
+                            
+                            <p class="text-blue-400">Completed Deliveries</p>
+                            <h3 class="text-2xl text-white font-bold">{{ completed_deliveries }}</h3>
+                            
+                            <div class="border-t border-gray-600 my-2"></div>
+                            
+                            <p class="text-blue-400">Pending Deliveries</p>
+                            <h3 class="text-2xl text-white font-bold">{{ pending_deliveries }}</h3>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="w-full mt-4">
+                        <div class="flex items-center justify-between bg-gray-700 rounded-lg p-4">
+                            <span class="text-blue-400">Your Status</span>
+                            <div class="flex items-center">
+                                <span class="text-white mr-2">Active</span>
+                                <div class="w-4 h-4 rounded-full bg-green-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section - Profile Information in Grid -->
+            <div class="w-3/4 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl text-white">Profile Information</h2>
+                    <div class="flex gap-3">
+                        <button onclick="changePassword()" 
+                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-key mr-2"></i>
+                            Change Password
+                        </button>&nbsp;&nbsp;
+                        <button onclick="editProfile()" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-edit mr-2"></i>
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- Personal Information -->
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <h3 class="text-lg text-blue-400 mb-3 font-semibold border-b border-gray-600 pb-2">
+                                <i class="fas fa-user mr-2"></i>Personal Information
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-blue-400 text-sm">Full Name</label>
+                                        <p class="text-white">{{ request.user.get_full_name }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-blue-400 text-sm">Email</label>
+                                        <p class="text-white">{{ request.user.email }}</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-blue-400 text-sm">Phone Number</label>
+                                        <p class="text-white">{{ profile.phone_number }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-blue-400 text-sm">Home Town</label>
+                                        <p class="text-white">{{ profile.city }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+<br>
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Address Details -->
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <h3 class="text-lg text-blue-400 mb-3 font-semibold border-b border-gray-600 pb-2">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Address Details
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-blue-400 text-sm">Address</label>
+                                    <p class="text-white">{{ profile.address }}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-blue-400 text-sm">District</label>
+                                        <p class="text-white">{{ profile.city }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-blue-400 text-sm">State</label>
+                                        <p class="text-white">{{ profile.state }}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-blue-400 text-sm">Pincode</label>
+                                    <p class="text-white">{{ profile.pincode }}</p>
+                                </div>
+                            </div>
+                        </div>
+<br>
+                        <!-- Vehicle Details -->
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <h3 class="text-lg text-blue-400 mb-3 font-semibold border-b border-gray-600 pb-2">
+                                <i class="fas fa-motorcycle mr-2"></i>Vehicle Details
+                            </h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-blue-400 text-sm">Vehicle Type</label>
+                                    <p class="text-white">{{ profile.vehicle_type }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-blue-400 text-sm">Vehicle Number</label>
+                                    <p class="text-white">{{ profile.vehicle_number }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-blue-400 text-sm">Liscense Number</label>
+                                    <p class="text-white">{{ profile.id_proof_number }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+            </div>
+            <!--Footer-->
+            <footer class="footer">
+                <p>&copy; 2024 NurtureNest. All rights reserved.</p>
+            </footer>
+            <!--/Footer-->
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script>
+        function sidebarToggle() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("hidden");
+        }
+        function profileToggle() {
+            const profileDropdown = document.getElementById('ProfileDropDown');
+            profileDropdown.classList.toggle('hidden');
+            profileDropdown.classList.toggle('show');
+        }
+    </script>
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () {
+            null
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function changePassword() {
+            Swal.fire({
+                title: 'Change Password',
+                html: `
+                    <input type="password" id="currentPassword" class="swal2-input" placeholder="Current Password">
+                    <input type="password" id="newPassword" class="swal2-input" placeholder="New Password">
+                    <input type="password" id="confirmPassword" class="swal2-input" placeholder="Confirm New Password">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Change Password',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    if (!currentPassword || !newPassword || !confirmPassword) {
+                        Swal.showValidationMessage('Please fill all fields');
+                        return false;
+                    }
+
+                    if (newPassword !== confirmPassword) {
+                        Swal.showValidationMessage('New passwords do not match');
+                        return false;
+                    }
+
+                    return fetch('{% url "deliveryboy_pswd" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            current_password: currentPassword,
+                            new_password: newPassword
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message);
+                        }
+                        return data;
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Password changed successfully',
+                        icon: 'success'
+                    });
+                }
+            }).catch(error => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error'
+                });
+            });
+        }
+
+        function editProfile() {
+            Swal.fire({
+                title: '<span class="text-xl font-semibold">Update Profile Information</span>',
+                icon: 'info',
+                width: '800px',
+                html: `
+                    <form id="profileForm" class="space-y-6 text-left">
+                        <!-- Personal Information Section -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                                <i class="fas fa-user mr-2"></i>Personal Information
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input type="text" id="phone_number" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information Section -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Address Information
+                            </h3>
+                            <div class="form-group mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Complete Address</label>
+                                <textarea id="address" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter complete address" rows="2"></textarea>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                    <input type="text" id="city" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter city">
+                                </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                                    <input type="text" id="state" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter state">
+                                </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                                    <input type="text" id="pincode" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter pincode">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehicle Information Section -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                                <i class="fas fa-motorcycle mr-2"></i>Vehicle Information
+                            </h3>
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">License Number</label>
+                                <input type="text" id="id_proof_number" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter driving license number">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
+                                    <select id="vehicle_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="">Select vehicle type</option>
+                                        <option value="Bike">Bike</option>
+                                        <option value="Scooter">Scooter</option>
+                                        <option value="Cycle">Cycle</option>
+                                        <option value="Car">Car</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vehicle Number</label>
+                                    <input type="text" id="vehicle_number" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Enter vehicle number">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                `,
+                didOpen: () => {
+                    // Fetch existing profile data when the form opens
+                    fetch('{% url "get_delivery_profile" %}')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success && data.profile) {
+                                // Fill form with existing data
+                                document.getElementById('phone_number').value = data.profile.phone_number || '';
+                                document.getElementById('address').value = data.profile.address || '';
+                                document.getElementById('city').value = data.profile.city || '';
+                                document.getElementById('state').value = data.profile.state || '';
+                                document.getElementById('pincode').value = data.profile.pincode || '';
+                                document.getElementById('id_proof_number').value = data.profile.id_proof_number || '';
+                                document.getElementById('vehicle_type').value = data.profile.vehicle_type || '';
+                                document.getElementById('vehicle_number').value = data.profile.vehicle_number || '';
+                            }
+                        })
+                        .catch(error => console.error('Error fetching profile:', error));
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Update Profile',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                customClass: {
+                    confirmButton: 'px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md',
+                    cancelButton: 'px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md',
+                    popup: 'rounded-lg',
+                    title: 'text-gray-800',
+                    htmlContainer: 'text-left'
+                },
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const formData = {
+                        phone_number: document.getElementById('phone_number').value,
+                        address: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        pincode: document.getElementById('pincode').value,
+                        id_proof_number: document.getElementById('id_proof_number').value,
+                        vehicle_type: document.getElementById('vehicle_type').value,
+                        vehicle_number: document.getElementById('vehicle_number').value
+                    };
+
+                    // Validate required fields
+                    const requiredFields = ['phone_number', 'address', 'city', 'state', 'pincode', 'id_proof_number', 'vehicle_type', 'vehicle_number'];
+                    const emptyFields = requiredFields.filter(field => !formData[field]);
+                    
+                    if (emptyFields.length > 0) {
+                        Swal.showValidationMessage(`Please fill in all required fields: ${emptyFields.join(', ')}`);
+                        return false;
+                    }
+
+                    // Validate phone number format
+                    const phoneRegex = /^[0-9]{10}$/;
+                    if (!phoneRegex.test(formData.phone_number)) {
+                        Swal.showValidationMessage('Please enter a valid 10-digit phone number');
+                        return false;
+                    }
+
+                    // Validate pincode format
+                    const pincodeRegex = /^[0-9]{6}$/;
+                    if (!pincodeRegex.test(formData.pincode)) {
+                        Swal.showValidationMessage('Please enter a valid 6-digit pincode');
+                        return false;
+                    }
+
+                    return fetch('{% url "deliveryboy_updateprofile" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.message || 'Failed to update profile');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || 'Failed to update profile');
+                        }
+                        return data;
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Profile Updated!',
+                        text: 'Your profile information has been successfully updated.',
+                        confirmButtonColor: '#10B981',
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: error.message || 'An error occurred while updating your profile.',
+                    confirmButtonColor: '#EF4444'
+                });
+            });
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+
+</html>

@@ -7,6 +7,7 @@ class User(AbstractUser):
         ('0', 'Parent'),
         ('1', 'Healthcare Provider'),
         ('admin', 'Admin'),
+        ('delivery_boy', 'Delivery Boy'),
     ]
     
     usertype = models.CharField(
@@ -258,6 +259,8 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     order_date = models.DateTimeField(auto_now_add=True)
+    payment_type = models.CharField(max_length=50, default='Online')
+    delivery_boy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_orders')
     order_status = models.CharField(max_length=50, choices=[
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
@@ -269,14 +272,31 @@ class Order(models.Model):
         ('pending', 'Pending'),
         ('completed', 'Completed'),
         ('failed', 'Failed'),
-        ('refunded', 'Refunded')
     ], default='pending')
     delivery_date = models.DateTimeField(null=True, blank=True)
     delivery_status = models.CharField(max_length=50, choices=[
         ('pending', 'Pending'),
-        ('in_transit', 'In Transit'), 
+        ('out for delivery', 'out for delivery'), 
         ('delivered', 'Delivered')
     ], default='pending')
 
     def __str__(self):
         return f'Order #{self.id} by {self.user.email}'
+    
+class DeliveryBoyProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=10)
+    id_proof_type = models.CharField(max_length=50, null=True, blank=True)  # Made nullable
+    id_proof_number = models.CharField(max_length=50, null=True, blank=True)  # Made nullable
+    vehicle_type = models.CharField(max_length=50)
+    vehicle_number = models.CharField(max_length=20)
+    profile_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Delivery Boy: {self.user.get_full_name()}"

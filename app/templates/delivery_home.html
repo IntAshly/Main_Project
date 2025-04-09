@@ -1,0 +1,305 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Delivery Boy Profile | NurtureNest</title>
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .bg-nav {
+            background-color: #4B5563;
+        }
+
+        body {
+            background-color: #f0f4f8;
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937;
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #f5f5f5;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .profile-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            display: none;
+            z-index: 10;
+        }
+        
+        .profile-dropdown a {
+            color: white;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937;
+        }
+        
+        .show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mx-auto bg-grey-400">
+        <div class="min-h-screen flex flex-col">
+            <!--Header Section-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">{{ request.user.get_full_name }}</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="#">My Profile</a>
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex flex-1">
+                {% comment %} <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-home mx-2"></i>
+                            <a href="{% url 'delivery_home' %}" class="no-underline">Home</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-tasks mx-2"></i>
+                            <a href="#" class="no-underline">My Deliveries</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-user mx-2"></i>
+                            <a href="#" class="no-underline">Profile</a>
+                        </li>
+                    </ul>
+                </aside> {% endcomment %}
+
+                <!-- Main Content -->
+                <main class="flex-1 p-6">
+                    <div class="main-content">
+                        <div class="container mx-auto px-4">
+                            <div class="max-w-2xl mx-auto">
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <div class="text-center mb-6">
+                                        <h3 class="text-2xl font-semibold text-gray-800">Delivery Boy Profile</h3>
+                                    </div>
+                                    
+                                    {% if messages %}
+                                        {% for message in messages %}
+                                            <div class="mb-4 p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    <form method="POST" action="{% url 'delivery_home' %}" class="space-y-6">
+                                        {% csrf_token %}
+                                        <div class="grid grid-cols-1 gap-6">
+                                            <!-- Personal Information Section -->
+                                            <div class="border-b pb-4">
+                                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Personal Information</h4>
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                                        <input type="tel" 
+                                                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                               id="phone_number" 
+                                                               name="phone_number" 
+                                                               value="{{ profile.phone_number }}"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Address Information Section -->
+                                            <div class="border-b pb-4">
+                                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Address Information</h4>
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                                        <textarea 
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                            id="address" 
+                                                            name="address" 
+                                                            rows="3"
+                                                            required>{{ profile.address }}</textarea>
+                                                    </div>
+                                                    
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                                            <input type="text" 
+                                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                                   id="city" 
+                                                                   name="city" 
+                                                                   value="{{ profile.city }}"
+                                                                   required>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                                                            <input type="text" 
+                                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                                   id="state" 
+                                                                   name="state" 
+                                                                   value="{{ profile.state }}"
+                                                                   required>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label for="pincode" class="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                                                        <input type="text" 
+                                                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                               id="pincode" 
+                                                               name="pincode" 
+                                                               value="{{ profile.pincode }}"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- ID Proof Section -->
+                                            <div class="border-b pb-4">
+                                                <h4 class="text-lg font-semibold text-gray-700 mb-4">ID Proof Information</h4>
+                                                <div class="space-y-4">
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label for="id_proof_type" class="block text-sm font-medium text-gray-700 mb-1">ID Proof Type</label>
+                                                            <select 
+                                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                                id="id_proof_type" 
+                                                                name="id_proof_type" 
+                                                                required>
+                                                                <option value="">Select ID Type</option>
+                                                                <option value="Aadhar Card" {% if profile.id_proof_type == 'Aadhar Card' %}selected{% endif %}>Aadhar Card</option>
+                                                                <option value="PAN Card" {% if profile.id_proof_type == 'PAN Card' %}selected{% endif %}>PAN Card</option>
+                                                                <option value="Driving License" {% if profile.id_proof_type == 'Driving License' %}selected{% endif %}>Driving License</option>
+                                                                <option value="Voter ID" {% if profile.id_proof_type == 'Voter ID' %}selected{% endif %}>Voter ID</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label for="id_proof_number" class="block text-sm font-medium text-gray-700 mb-1">ID Proof Number</label>
+                                                            <input type="text" 
+                                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                                   id="id_proof_number" 
+                                                                   name="id_proof_number" 
+                                                                   value="{{ profile.id_proof_number }}"
+                                                                   required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Vehicle Information Section -->
+                                            <div>
+                                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Vehicle Information</h4>
+                                                <div class="space-y-4">
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label for="vehicle_type" class="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
+                                                            <select 
+                                                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                                id="vehicle_type" 
+                                                                name="vehicle_type" 
+                                                                required>
+                                                                <option value="">Select Vehicle Type</option>
+                                                                <option value="Bike" {% if profile.vehicle_type == 'Bike' %}selected{% endif %}>Bike</option>
+                                                                <option value="Scooter" {% if profile.vehicle_type == 'Scooter' %}selected{% endif %}>Scooter</option>
+                                                                <option value="Cycle" {% if profile.vehicle_type == 'Cycle' %}selected{% endif %}>Cycle</option>
+                                                                <option value="Auto" {% if profile.vehicle_type == 'Auto' %}selected{% endif %}>Auto</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label for="vehicle_number" class="block text-sm font-medium text-gray-700 mb-1">Vehicle Number</label>
+                                                            <input type="text" 
+                                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                                   id="vehicle_number" 
+                                                                   name="vehicle_number" 
+                                                                   value="{{ profile.vehicle_number }}"
+                                                                   required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex justify-end mt-6">
+                                            <button type="submit" 
+                                                    class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                                Update Profile
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sidebarToggle() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        }
+
+        function profileToggle() {
+            document.getElementById('ProfileDropDown').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

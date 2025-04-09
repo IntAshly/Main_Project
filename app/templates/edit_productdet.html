@@ -209,42 +209,44 @@
             <!--/Header-->
 
             <div class="flex flex-1">
-                <!--Sidebar-->
-                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
-                    <ul class="list-reset">
-                        <li class="sidebar-link">
-                            <i class="fas fa-tachometer-alt mx-2"></i>
-                            <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-user-check mx-2"></i>
-                            <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-syringe mx-2"></i>
-                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-grip-horizontal mx-2"></i>
-                            <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-users mx-2"></i>
-                            <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
-                        </li>
-
-                        <li class="sidebar-link">
-                            <i class="fas fa-square-full mx-2"></i>
-                            <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
-                        </li>
-
-                        <li class="sidebar-link">
-                            <i class="fas fa-square-full mx-2"></i>
-                            <a href="{% url 'ecom_admin_home' %}" class="no-underline">Products manage</a>
-                        </li>
-                    </ul>
-                </aside>
-                <!--/Sidebar-->
+               <!--Sidebar-->
+               <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                <ul class="list-reset">
+                    <li class="sidebar-link">
+                        <i class="fas fa-tachometer-alt mx-2"></i>
+                        <a href="{% url 'ecom_admin_home' %}" class="no-underline">Dashboard</a>
+                    </li>
+                    <li class="sidebar-link">
+                       <i class="fas fa-plus-square mx-2"></i>
+                       <a href="{% url 'add_category' %}" class="no-underline">Add Category</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-folder-open mx-2"></i>
+                       <a href="{% url 'view_categories' %}" class="no-underline">View Category</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-box mx-2"></i>
+                       <a href="{% url 'add_product' %}" class="no-underline">Add Products</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-boxes mx-2"></i>
+                       <a href="{% url 'view_addproducts' %}" class="no-underline">View Products</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-truck mx-2"></i>
+                       <a href="{% url 'add_delivery_boy' %}" class="no-underline">Add Delivery Boy</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-truck-loading mx-2"></i>
+                       <a href="{% url 'view_delivery_boys' %}" class="no-underline">View Delivery Boy</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-shopping-bag mx-2"></i>
+                       <a href="{% url 'view_orders' %}" class="no-underline">All Orders</a>
+                   </li>
+               </ul>
+           </aside>
+<!-- sidebar -->
                 <!--Main-->
 
     <main class="flex-1 p-6">

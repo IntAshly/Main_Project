@@ -1,0 +1,494 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,admin templates, admin template, admin dashboard, free tailwind templates, tailwind example">
+    <!-- Css -->
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/all.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <title>Dashboard | Delivery Main Page </title>
+    <style>
+        .bg-nav {
+            background-color: #4B5563; /* Dark gray for nav background */
+        }
+
+        body {
+            background-color: #f0f4f8; /* Light gray background */
+        }
+
+        .bg-box-color {
+            background-color: #e69b95; /* Coral color for boxes */
+            border-left-width: 6px; /* Left border width */
+            height: 150px; /* Set height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px; /* Space between boxes */
+            border-left: 6px solid #FF6F61; /* Border color */
+            border-radius: 8px; /* Rounded corners */
+            transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        .bg-box-color:hover {
+            background-color: #FF6F61; /* Slightly darker coral on hover */
+            transform: translateY(-5px); /* Lift effect on hover */
+        }
+
+        .no-underline {
+            text-decoration: none;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #F3F4F6; /* Light gray text */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-link:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+
+        .main-content {
+            padding: 2rem;
+            background-color: #FFFFFF; /* White main content area */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        .footer {
+            background-color: #374151; /* Darker gray footer */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .icon-style {
+            font-size: 2rem; /* Larger icons */
+        }
+
+        .box-title {
+            margin-top: 1rem;
+            font-size: 1.25rem; /* Larger text */
+        }
+
+        .box-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .box-container > div {
+            flex: 1 1 calc(33.333% - 20px); /* Three boxes per row with space between */
+            margin-bottom: 20px; /* Space between rows */
+        }
+
+        @media (max-width: 768px) {
+            .box-container > div {
+                flex: 1 1 calc(100% - 20px); /* Single box per row on smaller screens */
+            }
+        }
+            
+        .profile-container {
+            position: relative; /* Positioning for dropdown */
+            display: flex; /* Align items horizontally */
+            align-items: center; /* Center vertically */
+        }
+        
+        .profile-dropdown {
+            background-color: #4B5563; /* Dark gray background */
+            color: white; /* White text */
+            padding: 10px; /* Padding */
+            text-align: left; /* Align text left */
+            width: 200px; /* Set width */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border-radius: 8px; /* Rounded corners */
+            position: absolute; /* Position dropdown absolutely */
+            top: 100%; /* Position below the container */
+            right: 0; /* Align to the right of the container */
+            margin-top: 8px; /* Space between text and dropdown */
+            display: none; /* Initially hidden */
+            z-index: 10; /* Ensure dropdown is above other content */
+        }
+        
+        .profile-dropdown a {
+            color: white; /* White text */
+            padding: 10px;
+            display: block;
+            text-decoration: none; /* No underline */
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: #1F2937; /* Darker gray on hover */
+        }
+        
+        .show {
+            display: block; /* Display when shown */
+        }
+        
+        
+    </style>
+</head>
+
+<body>
+    <!--Container -->
+    <div class="mx-auto bg-grey-400">
+        <!--Screen-->
+        <div class="min-h-screen flex flex-col">
+            <!--Header Section Starts Here-->
+            <header class="bg-nav p-4">
+                <div class="flex justify-between">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-bars pr-4 text-white" onclick="sidebarToggle()"></i>
+                        <h1 class="text-white text-2xl">NurtureNest</h1>
+                    </div>
+                    <div class="flex items-center profile-container">
+                        <img onclick="profileToggle()" class="h-10 w-10 rounded-full" src="{% static 'img/name.png' %}" alt="Profile">
+                        <a href="#" onclick="profileToggle()" class="text-white ml-4 hidden md:block lg:block">NurtureNest</a>
+                        <div id="ProfileDropDown" class="profile-dropdown hidden shadow-md absolute mt-12 mr-4 right-0">
+                            <a href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!--/Header-->
+
+            <div class="flex flex-1">
+                <!--Sidebar-->
+                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                    <ul class="list-reset">
+                        <li class="sidebar-link">
+                            <i class="fas fa-tachometer-alt mx-2"></i>
+                            <a href="{% url 'delivery_mainpage' %}" class="no-underline">Dashboard</a>
+                        </li>
+                        <li class="sidebar-link">
+                            <i class="fas fa-user-check mx-2"></i>
+                            <a href="{% url 'deliveryboy_profile' %}" class="no-underline">My Profile</a>
+                        </li>
+                       
+                        
+                    </ul>
+                </aside>
+                <!--/Sidebar-->
+                <!--Main-->
+                <main class="flex-1 p-6">
+                    <div class="main-content">
+                        <!-- Stats Grid Starts Here -->
+                        <div class="box-container">
+                            <!-- Box 1 -->
+                           
+                           
+                            <div class="container mx-auto px-4 py-8">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h2 class="text-2xl font-bold text-gray-800">My Assigned Deliveries</h2>
+                                    <div class="flex space-x-2">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                                            <span class="h-2 w-2 mr-2 rounded-full bg-yellow-500"></span>Pending
+                                        </span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                                            <span class="h-2 w-2 mr-2 rounded-full bg-blue-500"></span>Out for Delivery
+                                        </span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                            <span class="h-2 w-2 mr-2 rounded-full bg-green-500"></span>Delivered
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead>
+                                                <tr class="bg-gray-50">
+                                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Order Details
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Customer Info
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Delivery Location
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Status & Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                {% for order in assigned_orders %}
+                                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                    <td class="px-6 py-4">
+                                                        <div class="flex flex-col">
+                                                            {% comment %} <span class="text-sm font-medium text-gray-900">{{ order.id }}</span> {% endcomment %}
+                                                            <span class="text-sm text-gray-900">{{ order.product.product_name }}</span>
+                                                            <span class="text-sm text-gray-500">Qty: {{ order.quantity }}</span>
+                                                            <span class="text-sm font-medium text-gray-900">₹{{ order.total_amount }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4">
+                                                        <div class="flex flex-col">
+                                                            <span class="text-sm font-medium text-gray-900">{{ order.user.get_full_name }}</span>
+                                                            <span class="text-sm text-gray-500">{{ order.user.email }}</span>
+                                                            {% with profile=order.user.parentprofile_set.first %}
+                                                            <span class="text-sm text-gray-500">Phone: {{ profile.contact_no }}</span>
+                                                            {% endwith %}
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4">
+                                                        {% with profile=order.user.parentprofile_set.first %}
+                                                        <div class="flex flex-col">
+                                                            <span class="text-sm text-gray-900">{{ profile.address }}</span>
+                                                            <span class="text-sm text-gray-500">{{ profile.place }}</span>
+                                                            <span class="text-sm text-gray-500">PIN: {{ profile.pincode }}</span>
+                                                        </div>
+                                                        {% endwith %}
+                                                    </td>
+                                                    <td class="px-6 py-4">
+                                                        <div class="flex flex-col space-y-3">
+                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                                                {% if order.delivery_status == 'Pending' %}bg-yellow-100 text-yellow-800
+                                                                {% elif order.delivery_status == 'Out for Delivery' %}bg-blue-100 text-blue-800
+                                                                {% elif order.delivery_status == 'Delivered' %}bg-green-100 text-green-800
+                                                                {% endif %}">
+                                                                {{ order.delivery_status }}
+                                                            </span>
+                                                            
+                                                            {% if order.delivery_status != 'Delivered' %}
+                                                                {% if order.delivery_status == 'Pending' %}
+                                                                <button onclick="updateDeliveryStatus('{{ order.id }}', 'Out for Delivery')"
+                                                                        class="inline-flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                                                                    <i class="fas fa-truck mr-2"></i>Start Delivery
+                                                                </button>
+                                                                {% elif order.delivery_status == 'Out for Delivery' %}
+                                                                <button onclick="updateDeliveryStatus('{{ order.id }}', 'Delivered')"
+                                                                        class="inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                                                                    <i class="fas fa-check mr-2"></i>Mark Delivered
+                                                                </button>
+                                                                {% endif %}
+                                                            {% else %}
+                                                                <span class="inline-flex items-center text-green-600 font-medium">
+                                                                    <i class="fas fa-check-circle mr-2"></i>Completed
+                                                                </span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                                        <div class="flex flex-col items-center">
+                                                            <i class="fas fa-box-open text-4xl mb-3"></i>
+                                                            <span class="text-lg font-medium">No orders assigned yet</span>
+                                                            <span class="text-sm">New deliveries will appear here</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- /Stats Grid Ends Here -->
+                    </div>
+                </main>
+                <!--/Main-->
+            </div>
+            <!--Footer-->
+            <footer class="footer">
+                <p>&copy; 2024 NurtureNest. All rights reserved.</p>
+            </footer>
+            <!--/Footer-->
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script>
+        function sidebarToggle() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("hidden");
+        }
+        function profileToggle() {
+            const profileDropdown = document.getElementById('ProfileDropDown');
+            profileDropdown.classList.toggle('hidden');
+            profileDropdown.classList.toggle('show');
+        }
+    </script>
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () {
+            null
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    function updateDeliveryStatus(orderId, status) {
+        if (status === 'Delivered') {
+            // Send OTP first
+            sendDeliveryOTP(orderId);
+        } else {
+            // For 'Out for Delivery' status, proceed normally
+            updateStatusDirectly(orderId, status);
+        }
+    }
+
+    function sendDeliveryOTP(orderId) {
+        fetch('/send-delivery-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                order_id: orderId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show OTP input dialog
+                Swal.fire({
+                    title: 'Verify Delivery',
+                    html: `
+                        <div class="text-left">
+                            <p class="mb-4 text-sm text-gray-600">An OTP has been sent to the customer's email.</p>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Enter OTP</label>
+                                <input type="text" id="otp-input" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter 6-digit OTP" maxlength="6">
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Verify & Complete Delivery',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#10B981',
+                    cancelButtonColor: '#EF4444',
+                    preConfirm: () => {
+                        const otp = document.getElementById('otp-input').value;
+                        if (!otp) {
+                            Swal.showValidationMessage('Please enter OTP');
+                            return false;
+                        }
+                        return verifyOTP(orderId, otp);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to send OTP: ' + data.error,
+                    confirmButtonColor: '#EF4444'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to send OTP',
+                confirmButtonColor: '#EF4444'
+            });
+        });
+    }
+
+    function verifyOTP(orderId, otp) {
+        return fetch('/verify-delivery-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                otp: otp
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // If OTP is verified, update the delivery status
+                return updateStatusDirectly(orderId, 'Delivered');
+            } else {
+                throw new Error(data.error || 'Invalid OTP');
+            }
+        })
+        .catch(error => {
+            Swal.showValidationMessage(`Verification failed: ${error.message}`);
+        });
+    }
+
+    function updateStatusDirectly(orderId, status) {
+        return fetch('/update-delivery-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                status: status
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: status === 'Delivered' ? 'Delivery completed successfully!' : 'Status updated successfully!',
+                    confirmButtonColor: '#10B981'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                throw new Error(data.error || 'Failed to update status');
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+                confirmButtonColor: '#EF4444'
+            });
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+</body>
+
+</html>

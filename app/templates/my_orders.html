@@ -1,5 +1,4 @@
 {% load static %}
-{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,81 +213,117 @@
             color: white;
             transform: translateY(-2px);
         }
+
+        .delivery-status .badge {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .delivery-status .bg-warning {
+            background-color: #ffc107 !important;
+            color: #000;
+        }
+
+        .delivery-status .bg-info {
+            background-color: #17a2b8 !important;
+            color: #fff;
+        }
+
+        .delivery-status .bg-success {
+            background-color: #28a745 !important;
+            color: #fff;
+        }
+
+        .delivery-boy-info {
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            background-color: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-right: 15px;
+        }
     </style>
 </head>
 <body>
 <!-- Navbar start -->
-      <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
-        <div class="container px-0">
-            <nav class="navbar navbar-light navbar-expand-xl py-3">
-                <a href="{% url 'index' %}" class="navbar-brand">
-                    <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
-                </a>
-                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars text-primary"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto">
-                        <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
-                        <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
-                        <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
-                        
-                        <!-- Replace the existing notification link with this -->
+<div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
+    <div class="container px-0">
+        <nav class="navbar navbar-light navbar-expand-xl py-3">
+            <a href="{% url 'index' %}" class="navbar-brand">
+                <h2 class="text-primary display-6">Nurture<span class="text-secondary">Nest</span></h2>
+            </a>
+            <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars text-primary"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav mx-auto">
+                    <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+                    <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
+                    <a href="{% url 'select_vaccine' %}" class="nav-item nav-link">Schedule Appointment</a>
+                    <a href="{% url 'appointment_success' %}" class="nav-item nav-link">View Appointments</a>
+                    
+                    <!-- Replace the existing notification link with this -->
 <a href="{% url 'notification' %}" class="nav-item nav-link position-relative">
-    <i class="fas fa-bell"></i>
-    {% if unread_notifications_count > 0 %}
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            {{ unread_notifications_count }}
-        </span>
-    {% endif %}
+<i class="fas fa-bell"></i>
+{% if unread_notifications_count > 0 %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ unread_notifications_count }}
+    </span>
+{% endif %}
 </a>
-          
+      
 <div class="nav-item dropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-        <i class="fa fa-hand-holding-heart"></i>
-    </a>
-    <div class="dropdown-menu m-0 bg-secondary rounded-0">
-        <a href="{% url 'view_feedingchart' %}" class="dropdown-item">FeedingChart</a>
-        <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
-    </div>
+<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+    <i class="fa fa-hand-holding-heart"></i>
+</a>
+<div class="dropdown-menu m-0 bg-secondary rounded-0">
+    <a href="{% url 'view_feedingchart' %}" class="dropdown-item">FeedingChart</a>
+    <a href="{% url 'view_mentalhealth' %}" class="dropdown-item">Mental Health</a>
+</div>
 </div>
 
- <!-- Shop Dropdown -->
- <div class="nav-item dropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-        <i class="fas fa-shopping-bag"></i>
+<!-- Shop Dropdown -->
+<div class="nav-item dropdown">
+<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+    <i class="fas fa-shopping-bag"></i>
+</a>
+<div class="dropdown-menu m-0 bg-secondary rounded-0">
+    <a href="{% url 'wishlist' %}" class="dropdown-item">
+        <i class="far fa-heart me-2"></i>Wishlist
     </a>
-    <div class="dropdown-menu m-0 bg-secondary rounded-0">
-        <a href="{% url 'wishlist' %}" class="dropdown-item">
-            <i class="far fa-heart me-2"></i>Wishlist
-        </a>
-        <a href="{% url 'cart' %}" class="dropdown-item">
-            <i class="fas fa-shopping-cart me-2"></i>Cart
-        </a>
-        <a href="{% url 'my_orders' %}" class="dropdown-item">
-            <i class="fas fa-history me-2"></i>Order History
-        </a> 
-       
-    </div>
+    <a href="{% url 'cart' %}" class="dropdown-item">
+        <i class="fas fa-shopping-cart me-2"></i>Cart
+    </a>
+    <a href="{% url 'my_orders' %}" class="dropdown-item">
+        <i class="fas fa-history me-2"></i>Order History
+    </a> 
+   
 </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                                <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
-                                {{ user.get_full_name|default:user.username }}
-                            </a>
-                            <div class="dropdown-menu m-0 bg-secondary rounded-0">
-                                <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
-                                <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
-
-                                <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
-                            </div>
+</div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
+                            {{ user.get_full_name|default:user.username }}
+                        </a>
+                        <div class="dropdown-menu m-0 bg-secondary rounded-0">
+                            <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
+                            <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
+                            <a href="{% url 'health_assistant_page' %}" class="nav-item nav-link">Health Assistant</a>
+                            <a href="{% url 'toy_assistant' %}" class="nav-item nav-link">Toy Assistant</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                         </div>
                     </div>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     </div>
+</div>
 <!-- Navbar End -->
 
     <div class="container-fluid py-5">
@@ -315,11 +350,35 @@
                     </div>
 
                     <div class="delivery-info">
-                        <i class="fas fa-truck me-2"></i>
-                        Expected Delivery: 
-                        <span class="delivery-date">
-                            {{ order.order_date|add_days:7|date:"F d, Y" }}
-                        </span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-truck me-2"></i>
+                                Expected Delivery: 
+                                <span class="delivery-date">
+                                    {{ order.expected_delivery_date|date:"F d, Y" }}
+                                </span>
+                            </div>
+                            <div class="delivery-status">
+                                <span class="badge {% if order.delivery_status == 'Pending' %}bg-warning
+                                      {% elif order.delivery_status == 'Out for Delivery' %}bg-info
+                                      {% elif order.delivery_status == 'Delivered' %}bg-success
+                                      {% endif %} p-2">
+                                    <i class="fas {% if order.delivery_status == 'Pending' %}fa-clock
+                                        {% elif order.delivery_status == 'Out for Delivery' %}fa-truck
+                                        {% elif order.delivery_status == 'Delivered' %}fa-check-circle
+                                        {% endif %} me-1"></i>
+                                    {{ order.delivery_status }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if order.delivery_boy %}
+                        <div class="delivery-boy-info mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user-circle me-1"></i>
+                                Delivery Partner: {{ order.delivery_boy.get_full_name }}
+                            </small>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="order-footer">
@@ -328,7 +387,7 @@
                         </div>
                         <div class="d-flex align-items-center">
                             <div class="order-status status-{{ order.order_status }}">
-                                {{ order.order_status|title }}
+                                Payment Status: {{ order.payment_status }}
                             </div>
                             {% if forloop.first %}
                             <a href="{% url 'download_receipt' order.id %}" class="download-receipt">

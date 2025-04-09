@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
     <link rel="stylesheet" href="{% static 'dist/all.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i,700,700i" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
             .bg-nav {
                 background-color: #4B5563; /* Dark gray for nav background */
@@ -248,91 +252,116 @@
             <!--/Header-->
 
             <div class="flex flex-1">
-                <!--Sidebar-->
-                <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
-                    <ul class="list-reset">
-                        <li class="sidebar-link">
-                            <i class="fas fa-tachometer-alt mx-2"></i>
-                            <a href="{% url 'admin_home' %}" class="no-underline">Dashboard</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-user-check mx-2"></i>
-                            <a href="{% url 'request' %}" class="no-underline">Login Requests</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-syringe mx-2"></i>
-                            <a href="{% url 'add_vaccine' %}" class="no-underline">Add Vaccines</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-grip-horizontal mx-2"></i>
-                            <a href="{% url 'total_healthcenters' %}" class="no-underline">Total HeathCenters</a>
-                        </li>
-                        <li class="sidebar-link">
-                            <i class="fas fa-users mx-2"></i>
-                            <a href="{% url 'total_parents' %}" class="no-underline">Total Parents</a>
-                        </li>
-
-                        <li class="sidebar-link">
-                            <i class="fas fa-square-full mx-2"></i>
-                            <a href="{% url 'view_vaccines' %}" class="no-underline">View Vaccines</a>
-                        </li>
-
-                        <li class="sidebar-link">
-                            <i class="fas fa-square-full mx-2"></i>
-                            <a href="{% url 'ecom_admin_home' %}" class="no-underline">Products manage</a>
-                        </li>
-                    </ul>
-                </aside>
-                <!--/Sidebar-->
+               <!--Sidebar-->
+               <aside id="sidebar" class="bg-nav w-1/5 md:w-1/6 lg:w-1/6 border-r border-gray-700 hidden md:block lg:block">
+                <ul class="list-reset">
+                    <li class="sidebar-link">
+                        <i class="fas fa-tachometer-alt mx-2"></i>
+                        <a href="{% url 'ecom_admin_home' %}" class="no-underline">Dashboard</a>
+                    </li>
+                    <li class="sidebar-link">
+                       <i class="fas fa-plus-square mx-2"></i>
+                       <a href="{% url 'add_category' %}" class="no-underline">Add Category</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-folder-open mx-2"></i>
+                       <a href="{% url 'view_categories' %}" class="no-underline">View Category</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-box mx-2"></i>
+                       <a href="{% url 'add_product' %}" class="no-underline">Add Products</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-boxes mx-2"></i>
+                       <a href="{% url 'view_addproducts' %}" class="no-underline">View Products</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-truck mx-2"></i>
+                       <a href="{% url 'add_delivery_boy' %}" class="no-underline">Add Delivery Boy</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-truck-loading mx-2"></i>
+                       <a href="{% url 'view_delivery_boys' %}" class="no-underline">View Delivery Boy</a>
+                   </li>
+                   <li class="sidebar-link">
+                       <i class="fas fa-shopping-bag mx-2"></i>
+                       <a href="{% url 'view_orders' %}" class="no-underline">All Orders</a>
+                   </li>
+               </ul>
+           </aside>
+<!-- sidebar -->
                 <!--Main-->
                 <main class="flex-1 p-6">
-                    <div class="main-content">
+                   
            <!--Grid Form-->
 
                
-                        <div class="table-header">
-                            <h2>Order Management</h2>
+                        <div class="flex justify-between mb-4">
+                            <h2 class="text-xl font-semibold">Orders</h2>
+                            <div class="space-x-2">
+                                <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded" onclick="downloadPDF()">
+                                    DOWNLOAD AS PDF
+                                </button>
+                                <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded" onclick="downloadExcel()">
+                                    DOWNLOAD AS EXCEL
+                                </button>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="order-table">
+
+                        <div class="overflow-x-auto bg-white rounded-lg shadow">
+                            <table class="w-full">
                                 <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                      
-                                        <th>Contact</th>
-                                        <th>Email</th>
-                                        <th>Pincode</th>
-                                        <th>Product</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
+                                    <tr class="bg-gray-100 text-gray-600 text-sm leading-normal">
+                                        <th class="py-3 px-4 text-left">Order ID</th>
+                                        <th class="py-3 px-4 text-left">User</th>
+                                        <th class="py-3 px-4 text-left">Product</th>
+                                        <th class="py-3 px-4 text-left">Quantity</th>
+                                        <th class="py-3 px-4 text-left">Amount</th>
+                                        <th class="py-3 px-4 text-left">Order Date</th>
+                                        <th class="py-3 px-4 text-left">Payment Type</th>
+                                        <th class="py-3 px-4 text-left">Payment Status</th>
+                                        <th class="py-3 px-4 text-left">Delivery Status</th>
+                                        <th class="py-3 px-4 text-left">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="text-gray-600 text-sm">
                                     {% for order in orders %}
                                     {% with parent_profile=order.user.parentprofile_set.first %}
-                                    <tr>
-                                        <td>{{ order.id }}</td>
-                                       
-                                        <td>{{ parent_profile.contact_no|default:"N/A" }}</td>
-                                        <td>{{ order.user.email }}</td>
-                                        <td>{{ parent_profile.pincode|default:"N/A" }}</td>
-                                        <td>{{ order.product.product_name }}</td>
-                                        <td>₹{{ order.total_amount }}</td>
-                                        <td>
-                                            <span class="status-badge {% if order.order_status == 'delivered' %}status-delivered
-                                                  {% elif order.order_status == 'pending' %}status-pending
-                                                  {% else %}status-processing{% endif %}">
-                                                {{ order.order_status|title }}
+                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                        <td class="py-3 px-4">{{ order.id }}</td>
+                                        <td class="py-3 px-4">{{ order.user.username }}</td>
+                                        <td class="py-3 px-4">{{ order.product.product_name }}</td>
+                                        <td class="py-3 px-4">{{ order.quantity }}</td>
+                                        <td class="py-3 px-4">₹{{ order.total_amount }}</td>
+                                        <td class="py-3 px-4">{{ order.order_date|date:"Y-m-d H:i" }}</td>
+                                        
+                                        <td class="py-3 px-4">{{ order.payment_type }}</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                                                {{ order.payment_status }}
                                             </span>
                                         </td>
-                                        <td>{{ order.order_date|date:"d M Y" }}</td>
-                                        <td>
-                                            <a href="{% url 'download_adminreciept' order.id %}" 
-                                               class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-xs">
-                                                Download
-                                            </a>
+                                       
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 rounded-full text-xs 
+                                                {% if order.delivery_status == 'Delivered' %}bg-green-100 text-green-800
+                                                {% elif order.delivery_status == 'Pending' %}bg-yellow-100 text-yellow-800
+                                                {% endif %}">
+                                                {{ order.delivery_status|default:"Pending" }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            {% if order.delivery_boy %}
+                                                <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
+                                                        onclick="showAssignedDetails('{{ order.id }}')">
+                                                    Assigned
+                                                </button>
+                                            {% else %}
+                                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                                                        onclick="showAssignmentModal('{{ order.id }}')">
+                                                    Assign Order
+                                                </button>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endwith %}
@@ -340,11 +369,70 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+                            <div class="flex justify-between flex-1 sm:hidden">
+                                {% if orders.has_previous %}
+                                    <a href="?page={{ orders.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                        Previous
+                                    </a>
+                                {% endif %}
+                                {% if orders.has_next %}
+                                    <a href="?page={{ orders.next_page_number }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                        Next
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing
+                                        <span class="font-medium">{{ orders.start_index }}</span>
+                                        to
+                                        <span class="font-medium">{{ orders.end_index }}</span>
+                                        of
+                                        <span class="font-medium">{{ orders.paginator.count }}</span>
+                                        results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        {% if orders.has_previous %}
+                                            <a href="?page={{ orders.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                <span class="sr-only">Previous</span>
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        {% endif %}
+
+                                        {% for num in orders.paginator.page_range %}
+                                            {% if orders.number == num %}
+                                                <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                                    {{ num }}
+                                                </span>
+                                            {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                                                <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                                    {{ num }}
+                                                </a>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if orders.has_next %}
+                                            <a href="?page={{ orders.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                <span class="sr-only">Next</span>
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        {% endif %}
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </main>
             </div>
         </div>
     </div>
+     
 
     <script>
         function sidebarToggle() {
@@ -361,6 +449,493 @@
         }
         setTimeout("preventBack()", 0);
         window.onunload = function () { null };
+
+        let currentOrderId = null;
+        let deliveryBoysData = [];
+
+        function showAssignmentModal(orderId) {
+            currentOrderId = orderId;
+            fetchDeliveryBoys(orderId);
+        }
+
+        function fetchDeliveryBoys(orderId) {
+            fetch(`/get-available-delivery-boys/${orderId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        deliveryBoysData = data.delivery_boys;
+                        
+                        let deliveryBoyOptions = `
+                            <select id="swal-delivery-boy" class="w-3/4 mx-auto block px-3 py-1.5 text-sm 
+                                border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 
+                                focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option value="" disabled selected>Choose Delivery Boy</option>
+                                ${deliveryBoysData.map(boy => 
+                                    `<option value="${boy.id}" class="py-1">${boy.name}</option>`
+                                ).join('')}
+                            </select>`;
+
+                        Swal.fire({
+                            title: '<strong>Assign Delivery Boy</strong>',
+                            icon: 'info',
+                            width: '650px',
+                            html: `
+                                <div class="text-left p-2">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-gray-50 p-2 rounded-lg">
+                                            <h4 class="font-medium text-gray-700 mb-1 flex items-center text-sm">
+                                                <i class="fas fa-user-circle mr-2"></i>Customer Info
+                                            </h4>
+                                            <div class="space-y-0.5">
+                                                <p class="text-sm"><strong>Name:</strong> ${data.customer.name}</p>
+                                                <p class="text-sm"><strong>Phone:</strong> ${data.customer.phone}</p>
+                                                <p class="text-sm"><strong>Address:</strong> ${data.customer.address}</p>
+                                                <p class="text-sm"><strong>Pincode:</strong> ${data.customer.pincode}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="bg-gray-50 p-2 rounded-lg">
+                                            <h4 class="font-medium text-gray-700 mb-1 flex items-center text-sm">
+                                                <i class="fas fa-shopping-cart mr-2"></i>Order Info
+                                            </h4>
+                                            <div class="space-y-0.5">
+                                                <p class="text-sm"><strong>Product:</strong> ${data.order.product}</p>
+                                                <p class="text-sm"><strong>Quantity:</strong> ${data.order.quantity}</p>
+                                                <p class="text-sm"><strong>Amount:</strong> ₹${data.order.amount}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3 bg-gray-50 p-2 rounded-lg">
+                                        <h4 class="font-medium text-gray-700 mb-2 flex items-center text-sm">
+                                            <i class="fas fa-motorcycle mr-2"></i>Select Delivery Boy
+                                        </h4>
+                                        <div class="flex flex-col items-center">
+                                            ${deliveryBoyOptions}
+                                            <div id="delivery-boy-details" class="mt-2 hidden w-full">
+                                                <div class="p-2 bg-white rounded-md shadow-sm border border-gray-200">
+                                                    <h5 class="font-medium text-gray-700 mb-1 text-center text-sm">Delivery Boy Details</h5>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <p id="swal-dboy-phone" class="text-sm"></p>
+                                                        <p id="swal-dboy-address" class="text-sm"></p>
+                                                        <p id="swal-dboy-city" class="text-sm"></p>
+                                                        <p id="swal-dboy-pincode" class="text-sm"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `,
+                            showCancelButton: true,
+                            confirmButtonText: '<i class="fas fa-check mr-2"></i>Assign',
+                            cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                            confirmButtonColor: '#10B981',
+                            cancelButtonColor: '#EF4444',
+                            customClass: {
+                                container: 'custom-swal-container',
+                                popup: 'custom-swal-popup',
+                                header: 'custom-swal-header',
+                                content: 'custom-swal-content'
+                            },
+                            didOpen: () => {
+                                document.getElementById('swal-delivery-boy').addEventListener('change', function() {
+                                    const selectedBoy = deliveryBoysData.find(boy => boy.id === parseInt(this.value));
+                                    const detailsDiv = document.getElementById('delivery-boy-details');
+                                    
+                                    if (selectedBoy) {
+                                        document.getElementById('swal-dboy-phone').innerHTML = `<strong>Phone:</strong> ${selectedBoy.phone}`;
+                                        document.getElementById('swal-dboy-address').innerHTML = `<strong>Address:</strong> ${selectedBoy.address}`;
+                                        document.getElementById('swal-dboy-city').innerHTML = `<strong>City:</strong> ${selectedBoy.city}`;
+                                        document.getElementById('swal-dboy-pincode').innerHTML = `<strong>Pincode:</strong> ${selectedBoy.pincode}`;
+                                        detailsDiv.classList.remove('hidden');
+                                    } else {
+                                        detailsDiv.classList.add('hidden');
+                                    }
+                                });
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const deliveryBoyId = document.getElementById('swal-delivery-boy').value;
+                                if (!deliveryBoyId) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Selection Required',
+                                        text: 'Please select a delivery boy',
+                                        confirmButtonColor: '#EF4444'
+                                    });
+                                    return;
+                                }
+                                confirmAssignment(deliveryBoyId);
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error fetching delivery boys: ' + data.error,
+                            confirmButtonColor: '#EF4444'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error fetching delivery boys',
+                        confirmButtonColor: '#EF4444'
+                    });
+                });
+        }
+
+        function confirmAssignment(deliveryBoyId) {
+            console.log('Assigning order:', currentOrderId, 'to delivery boy:', deliveryBoyId);
+
+            fetch('/assign-delivery-boy/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    order_id: currentOrderId,
+                    delivery_boy_id: deliveryBoyId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Find the order row using a more reliable selector
+                    const rows = document.querySelectorAll('tbody tr');
+                    let orderRow = null;
+                    
+                    rows.forEach(row => {
+                        const idCell = row.cells[0]; // First cell contains Order ID
+                        if (idCell && idCell.textContent.trim() === currentOrderId.toString()) {
+                            orderRow = row;
+                        }
+                    });
+
+                    if (orderRow) {
+                        // Update the action button
+                        const actionCell = orderRow.cells[orderRow.cells.length - 1]; // Last cell
+                        actionCell.innerHTML = `
+                            <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
+                                    onclick="showAssignedDetails('${currentOrderId}')">
+                                Assigned
+                            </button>
+                        `;
+
+                        // Update the delivery status (second to last cell)
+                        const statusCell = orderRow.cells[orderRow.cells.length - 2].querySelector('span');
+                        if (statusCell) {
+                            statusCell.className = 'px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800';
+                            statusCell.textContent = 'Pending';
+                        }
+
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Order assigned successfully!',
+                            confirmButtonColor: '#10B981'
+                        }).then(() => {
+                            // Reload the page after user clicks OK
+                            window.location.reload();
+                        });
+                    } else {
+                        console.error('Order row not found for ID:', currentOrderId);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Could not update the display. Please refresh the page.',
+                            confirmButtonColor: '#EF4444'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to assign order: ' + data.error,
+                        confirmButtonColor: '#EF4444'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error assigning order',
+                    confirmButtonColor: '#EF4444'
+                });
+            });
+        }
+
+        // Add this helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Add this helper function to find elements containing text
+        Element.prototype.contains = function(text) {
+            return this.textContent.includes(text);
+        };
+
+        function showAssignedDetails(orderId) {
+            fetch(`/get-assigned-delivery-boy/${orderId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const statusClass = data.delivery_status === 'Delivered' 
+                            ? 'text-green-600'
+                            : data.delivery_status === 'Out for Delivery'
+                                ? 'text-blue-600'
+                                : 'text-yellow-600';
+
+                        const statusIcon = data.delivery_status === 'Delivered' 
+                            ? 'check-circle'
+                            : data.delivery_status === 'Out for Delivery'
+                                ? 'truck'
+                                : 'clock';
+
+                        Swal.fire({
+                            title: '<strong>Assigned Delivery Boy Details</strong>',
+                            icon: 'info',
+                            width: '600px',
+                            html: `
+                                <div class="text-left p-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                        <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                                            <i class="fas fa-user-circle mr-2"></i>Delivery Boy Information
+                                        </h4>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <p class="text-sm"><strong>Name:</strong> ${data.delivery_boy.name}</p>
+                                            <p class="text-sm"><strong>Phone:</strong> ${data.delivery_boy.phone}</p>
+                                            <p class="text-sm"><strong>Address:</strong> ${data.delivery_boy.address}</p>
+                                            <p class="text-sm"><strong>City:</strong> ${data.delivery_boy.city}</p>
+                                            <p class="text-sm"><strong>Pincode:</strong> ${data.delivery_boy.pincode}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                                            <i class="fas fa-info-circle mr-2"></i>Delivery Status
+                                        </h4>
+                                        <p class="text-sm ${statusClass} font-medium flex items-center">
+                                            <i class="fas fa-${statusIcon} mr-2"></i>${data.delivery_status}
+                                        </p>
+                                    </div>
+                                </div>
+                            `,
+                            confirmButtonText: '<i class="fas fa-times mr-2"></i>Close',
+                            confirmButtonColor: '#3B82F6',
+                            customClass: {
+                                container: 'custom-swal-container',
+                                popup: 'custom-swal-popup'
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', 'Error fetching delivery boy details: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Error fetching delivery boy details', 'error');
+                });
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFontSize(18);
+            doc.setTextColor(40);
+            doc.text("NurtureNest - Orders Report", 14, 22);
+
+            // Add date
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+            // Get table data
+            const tableData = [];
+            const headers = [
+                'Order ID',
+                'User',
+                'Product',
+                'Quantity',
+                'Amount',
+                'Order Date',
+                'Payment Type',
+                'Payment Status',
+                'Delivery Status'
+            ];
+
+            // Get all rows from the table - Fixed selector
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const rowData = [];
+                const cells = row.querySelectorAll('td');
+                
+                // Order ID
+                rowData.push(cells[0].textContent.trim());
+                // User
+                rowData.push(cells[1].textContent.trim());
+                // Product
+                rowData.push(cells[2].textContent.trim());
+                // Quantity
+                rowData.push(cells[3].textContent.trim());
+                // Amount
+                rowData.push(cells[4].textContent.trim());
+                // Order Date
+                rowData.push(cells[5].textContent.trim());
+                // Payment Type
+                rowData.push(cells[6].textContent.trim());
+                // Payment Status - Remove extra whitespace and get only status text
+                rowData.push(cells[7].querySelector('span').textContent.trim());
+                // Delivery Status - Remove extra whitespace and get only status text
+                rowData.push(cells[8].querySelector('span').textContent.trim());
+
+                tableData.push(rowData);
+            });
+
+            // Add table to PDF
+            doc.autoTable({
+                head: [headers],
+                body: tableData,
+                startY: 40,
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3,
+                },
+                headStyles: {
+                    fillColor: [75, 85, 99],
+                    textColor: 255,
+                    fontSize: 10,
+                    fontStyle: 'bold',
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245],
+                },
+                margin: { top: 40 },
+                theme: 'grid',
+                columnStyles: {
+                    0: { cellWidth: 20 }, // Order ID
+                    1: { cellWidth: 25 }, // User
+                    2: { cellWidth: 35 }, // Product
+                    3: { cellWidth: 20 }, // Quantity
+                    4: { cellWidth: 20 }, // Amount
+                    5: { cellWidth: 25 }, // Order Date
+                    6: { cellWidth: 25 }, // Payment Type
+                    7: { cellWidth: 25 }, // Payment Status
+                    8: { cellWidth: 25 }, // Delivery Status
+                }
+            });
+
+            // Add footer with page numbers
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(128);
+                doc.text(
+                    `Page ${i} of ${pageCount}`,
+                    doc.internal.pageSize.width / 2,
+                    doc.internal.pageSize.height - 10,
+                    { align: 'center' }
+                );
+            }
+
+            // Save PDF
+            doc.save(`NurtureNest_Orders_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function downloadExcel() {
+            // Get table data
+            const tableData = [
+                [
+                    'Order ID',
+                    'User',
+                    'Product',
+                    'Quantity',
+                    'Amount',
+                    'Order Date',
+                    'Payment Type',
+                    'Payment Status',
+                    'Delivery Status'
+                ]
+            ];
+
+            // Get all rows from the table - Fixed selector
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[0].textContent.trim(), // Order ID
+                    cells[1].textContent.trim(), // User
+                    cells[2].textContent.trim(), // Product
+                    cells[3].textContent.trim(), // Quantity
+                    cells[4].textContent.trim(), // Amount
+                    cells[5].textContent.trim(), // Order Date
+                    cells[6].textContent.trim(), // Payment Type
+                    cells[7].querySelector('span').textContent.trim(), // Payment Status
+                    cells[8].querySelector('span').textContent.trim(), // Delivery Status
+                ];
+                tableData.push(rowData);
+            });
+
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(tableData);
+
+            // Set column widths
+            const colWidths = [
+                { wch: 10 }, // Order ID
+                { wch: 15 }, // User
+                { wch: 30 }, // Product
+                { wch: 10 }, // Quantity
+                { wch: 12 }, // Amount
+                { wch: 20 }, // Order Date
+                { wch: 15 }, // Payment Type
+                { wch: 15 }, // Payment Status
+                { wch: 15 }, // Delivery Status
+            ];
+            ws['!cols'] = colWidths;
+
+            // Style the header row
+            const headerRange = XLSX.utils.decode_range(ws['!ref']);
+            for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+                const address = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[address]) continue;
+                ws[address].s = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "4B5563" } },
+                };
+            }
+
+            // Add the worksheet to the workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+
+            // Save Excel file
+            XLSX.writeFile(wb, `NurtureNest_Orders_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
     </script>
+    
 </body>
 </html>

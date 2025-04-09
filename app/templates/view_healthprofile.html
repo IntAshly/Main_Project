@@ -246,6 +246,8 @@
                     </div>
                     <!-- Optional: Include FontAwesome for the edit icon -->
                     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+                    <!-- Add SweetAlert2 CSS -->
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
                                     <!--Footer-->
                 <footer class="footer">
                     <p>&copy; 2024 NurtureNest. All rights reserved.</p>
@@ -254,6 +256,8 @@
             </div>
         </div>
         <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             function sidebarToggle() {
                 var sidebar = document.getElementById("sidebar");
@@ -264,6 +268,119 @@
                 profileDropdown.classList.toggle('hidden');
                 profileDropdown.classList.toggle('show');
             }
+
+            // Add click handler for edit icon
+            document.querySelector('.edit-icon').addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Edit Health Profile',
+                    html: `
+                        <form id="editProfileForm">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Health Center Name</label>
+                                <input type="text" id="health_center_name" value="{{ health_profile.health_center_name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+                                <input type="text" id="phone" value="{{ health_profile.phone }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Address</label>
+                                <input type="text" id="address" value="{{ health_profile.address }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">City</label>
+                                <input type="text" id="city" value="{{ health_profile.city }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">License Number</label>
+                                <input type="text" id="license_number" value="{{ health_profile.license_number }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Save',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return {
+                            health_center_name: document.getElementById('health_center_name').value,
+                            phone: document.getElementById('phone').value,
+                            address: document.getElementById('address').value,
+                            city: document.getElementById('city').value,
+                            license_number: document.getElementById('license_number').value
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Get CSRF token from cookie
+                        function getCookie(name) {
+                            let cookieValue = null;
+                            if (document.cookie && document.cookie !== '') {
+                                const cookies = document.cookie.split(';');
+                                for (let i = 0; i < cookies.length; i++) {
+                                    const cookie = cookies[i].trim();
+                                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                        break;
+                                    }
+                                }
+                            }
+                            return cookieValue;
+                        }
+                        const csrftoken = getCookie('csrftoken');
+
+                        // Send AJAX request to update profile
+                        $.ajax({
+                            url: "{% url 'edit_health_profile_view' %}",
+                            type: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            data: result.value,
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    // Update the displayed values
+                                    const spans = document.querySelectorAll('.flex.items-center span');
+                                    spans.forEach(span => {
+                                        const label = span.previousElementSibling.textContent.trim();
+                                        if (label.includes('Health Center Name')) {
+                                            span.textContent = result.value.health_center_name;
+                                        } else if (label.includes('Phone')) {
+                                            span.textContent = result.value.phone;
+                                        } else if (label.includes('Address')) {
+                                            span.textContent = result.value.address;
+                                        } else if (label.includes('City')) {
+                                            span.textContent = result.value.city;
+                                        } else if (label.includes('License Number')) {
+                                            span.textContent = result.value.license_number;
+                                        }
+                                    });
+                                    
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: response.message,
+                                        icon: 'success'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: response.message || 'Failed to update profile',
+                                        icon: 'error'
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Failed to update profile: ' + error,
+                                    icon: 'error'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
         </script>
         <script type="text/javascript">
             function preventBack() {

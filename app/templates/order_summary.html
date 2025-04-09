@@ -196,8 +196,8 @@
     </style>
 </head>
 <body>
-     <!-- Navbar start -->
-     <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
+    <!-- Navbar start -->
+    <div class="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
         <div class="container px-0">
             <nav class="navbar navbar-light navbar-expand-xl py-3">
                 <a href="{% url 'index' %}" class="navbar-brand">
@@ -259,7 +259,8 @@
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                 <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
                                 <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
-
+                                <a href="{% url 'health_assistant_page' %}" class="nav-item nav-link">Health Assistant</a>
+                                <a href="{% url 'toy_assistant' %}" class="nav-item nav-link">Toy Assistant</a>
                                 <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                             </div>
                         </div>
@@ -269,7 +270,6 @@
         </div>
     </div>
     <!-- Navbar End -->
-
     <div class="container-fluid py-5">
         <div class="order-container">
             <h1 class="order-title">Order Summary</h1>

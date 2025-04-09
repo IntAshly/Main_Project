@@ -1,20 +1,22 @@
-Medicine Name,Usage,Advantages,Age Group,Side Effects,,Image Path
-Paracetamol,"Fever, mild to moderate pain relief","Effective and safe for children, reduces fever and pain quickly",0+ years,"Rare: nausea, rash",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Paracetamol.jpg
-Ibuprofen,"Fever, inflammation, pain relief","Reduces inflammation, longer-lasting pain relief compared to Paracetamol",6+ months,"Stomach upset, dizziness",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Ibuprofen.jpg
-Amoxicillin,"Bacterial infections (ear, throat, etc.)","Broad-spectrum antibiotic, effective against many bacterial infections",0+ years,"Diarrhea, rash, nausea",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Amoxicillin.jpg
-Cetirizine,"Allergies, hay fever, itching","Non-drowsy formula, relieves allergy symptoms quickly",2+ years,"Dry mouth, drowsiness",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Cetirizine.jpg
-Salbutamol,"Asthma, bronchospasm","Rapid relief for breathing difficulties, easy to use with inhalers",4+ years,"Tremors, increased heart rate",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Salbutamol.jpg
-ORS (Oral Rehydration Salts),Dehydration due to diarrhea or vomiting,"Rehydrates quickly, restores electrolyte balance",0+ years,"Rare: nausea, vomiting",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Diphenhydramine,"Allergies, motion sickness, insomnia","Effective for severe allergies, induces sleep",6+ years,"Drowsiness, dry mouth",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Loratadine,"Allergies, hay fever","Non-drowsy, long-lasting relief from allergy symptoms",2+ years,"Headache, fatigue",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Azithromycin,"Bacterial infections (ear, throat, etc.)","Short course, effective against respiratory infections",6+ months,"Diarrhea, stomach pain",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Phenylephrine,Nasal congestion,"Relieves stuffy nose, available in child-friendly formulations",2+ years,"Irritability, restlessness",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Omeprazole,"Acid reflux, GERD","Reduces stomach acid, helps heal esophagus and stomach lining",1+ years,"Headache, stomach pain",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Dexamethasone,"Inflammation, allergies, asthma","Powerful anti-inflammatory, reduces swelling and allergic reactions",0+ years,"Increased appetite, mood changes",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Montelukast,"Asthma, allergies","Prevents asthma attacks, controls allergy symptoms",6+ months,"Headache, stomach pain",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Hydrocortisone Cream,"Skin rashes, eczema, insect bites","Reduces itching and inflammation, safe for topical use on children’s skin",0+ years,Rare: skin thinning,,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Ranitidine,"Acid reflux, heartburn","Reduces stomach acid, relieves heartburn and indigestion",1+ years,"Headache, constipation",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\ORS (Oral Rehydration Salts).jpg
-Chlorpheniramine,"Allergies, cold symptoms","Relieves sneezing, runny nose, and itching",2+ years,"Drowsiness, dry mouth",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Chlorpheniramine.jpg
-Miconazole Cream,"Fungal infections (e.g., diaper rash)","Treats fungal infections effectively, safe for skin application",0+ years,Rare: skin irritation,,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Miconazole Cream.jpg
-Zinc Supplements,"Diarrhea, immune support","Reduces duration of diarrhea, boosts immunity",6+ months,"Nausea, stomach upset",,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Zinc Supplements.jpg
-Multivitamin Syrup,Nutritional deficiency,Provides essential vitamins and minerals for growth and development,0+ years,Rare: allergic reactions,,C:\Users\Ashly\OneDrive\Documents\Sem_10\final_project\app\static\medicine_images\Multivitamin Syrup.jpg
+"
+Medicine Name",Image Path,Usage,Advantages,Age Group,Side Effects
+Paracetamol,medicine_images/paracetamol.jpg,For fever and pain relief,Fast acting pain relief,All ages,Rare side effects include nausea
+Ibuprofen,"Fever, inflammation, pain relief","Reduces inflammation, longer-lasting pain relief compared to Paracetamol",6+ months,"Stomach upset, dizziness"
+Amoxicillin,medicine_images/amoxicillin.jpg,Antibiotic for bacterial infections,Broad spectrum antibiotic,All ages,May cause stomach upset
+Cetirizine,medicine_images/cetirizine.jpg,For allergies and hay fever,24-hour relief from allergy symptoms,2+ years,May cause drowsiness
+Salbutamol,"Asthma, bronchospasm","Rapid relief for breathing difficulties, easy to use with inhalers",4+ years,"Tremors, increased heart rate"
+ORS (Oral Rehydration Salts),Dehydration due to diarrhea or vomiting,"Rehydrates quickly, restores electrolyte balance",0+ years,"Rare: nausea, vomiting"
+Diphenhydramine,"Allergies, motion sickness, insomnia","Effective for severe allergies, induces sleep",6+ years,"Drowsiness, dry mouth"
+Loratadine,"Allergies, hay fever","Non-drowsy, long-lasting relief from allergy symptoms",2+ years,"Headache, fatigue"
+Azithromycin,"Bacterial infections (ear, throat, etc.)","Short course, effective against respiratory infections",6+ months,"Diarrhea, stomach pain"
+Phenylephrine,Nasal congestion,"Relieves stuffy nose, available in child-friendly formulations",2+ years,"Irritability, restlessness"
+Omeprazole,"Acid reflux, GERD","Reduces stomach acid, helps heal esophagus and stomach lining",1+ years,"Headache, stomach pain"
+Dexamethasone,"Inflammation, allergies, asthma","Powerful anti-inflammatory, reduces swelling and allergic reactions",0+ years,"Increased appetite, mood changes"
+Montelukast,"Asthma, allergies","Prevents asthma attacks, controls allergy symptoms",6+ months,"Headache, stomach pain"
+Hydrocortisone Cream,"Skin rashes, eczema, insect bites","Reduces itching and inflammation, safe for topical use on children's skin",0+ years,Rare: skin thinning
+Ranitidine,"Acid reflux, heartburn","Reduces stomach acid, relieves heartburn and indigestion",1+ years,"Headache, constipation"
+Chlorpheniramine,"Allergies, cold symptoms","Relieves sneezing, runny nose, and itching",2+ years,"Drowsiness, dry mouth"
+Ferrous Sulfate,Iron deficiency anemia,"Improves iron levels, treats anemia in children",0+ years,"Constipation, stomach upset"
+Miconazole Cream,"Fungal infections (e.g., diaper rash)","Treats fungal infections effectively, safe for skin application",0+ years,Rare: skin irritation
+Zinc Supplements,"Diarrhea, immune support","Reduces duration of diarrhea, boosts immunity",6+ months,"Nausea, stomach upset"
+Multivitamin Syrup,Nutritional deficiency,Provides essential vitamins and minerals for growth and development,0+ years,Rare: allergic reactions

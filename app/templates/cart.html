@@ -291,8 +291,8 @@
     </div>
 </div>
 
- <!-- Shop Dropdown -->
- <div class="nav-item dropdown">
+<!-- Shop Dropdown -->
+<div class="nav-item dropdown">
     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
         <i class="fas fa-shopping-bag"></i>
     </a>
@@ -303,15 +303,16 @@
         <a href="{% url 'cart' %}" class="dropdown-item">
             <i class="fas fa-shopping-cart me-2"></i>Cart
         </a>
-       {% comment %} <a href="{% url 'order_history' %}" class="dropdown-item">
+        <a href="{% url 'my_orders' %}" class="dropdown-item">
             <i class="fas fa-history me-2"></i>Order History
-        </a>  {% endcomment %}
+        </a> 
+       
     </div>
 </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
-                                {{ user.get_full_name|default:user.username }}
+                                Hey,{{ user.get_full_name|default:user.username }}
                             </a>
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                 <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
@@ -409,9 +410,7 @@
         </div>
     </div>
     <!-- Copyright End -->
-<!-- Add these lines in the head section, after your other CSS links -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
     <script>
         function updateQuantity(itemId, change) {
             const quantityElement = document.getElementById(`quantity-${itemId}`);
@@ -479,135 +478,7 @@
         }
 
         function placeOrder() {
-            console.log('placeOrder function called');
-            
-            fetch('/cart/check-profile/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Profile data:', data);
-                
-                if (data.profile_exists) {
-                    const { pincode, district, state } = data.profile_data;
-                    
-                    if (!pincode || !district || !state) {
-                        Swal.fire({
-                            title: '<h5 style="font-size: 1.5rem;">Complete Your Profile</h5>',
-                            width: '500px',
-                            html: `
-                                <div class="form-group" style="margin-bottom: 20px;">
-                                    <div style="text-align: left; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                                        <h6 style="margin-bottom: 15px; color: #666;">Existing Details:</h6>
-                                        <div style="font-size: 15px; line-height: 1.6;">
-                                            <p style="margin: 5px 0;"><strong>Name:</strong> ${data.profile_data.name}</p>
-                                            <p style="margin: 5px 0;"><strong>Address:</strong> ${data.profile_data.address}</p>
-                                            <p style="margin: 5px 0;"><strong>Place:</strong> ${data.profile_data.place}</p>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top: 20px;">
-                                        <h6 style="margin-bottom: 15px; color: #666;">Additional Details Required:</h6>
-                                        <input type="text" id="pincode" class="form-control mb-3" 
-                                            placeholder="Enter Pincode*" value="${pincode || ''}" 
-                                            style="font-size: 15px; padding: 10px;">
-                                        <input type="text" id="district" class="form-control mb-3" 
-                                            placeholder="Enter District*" value="${district || ''}"
-                                            style="font-size: 15px; padding: 10px;">
-                                        <input type="text" id="state" class="form-control" 
-                                            placeholder="Enter State*" value="${state || ''}"
-                                            style="font-size: 15px; padding: 10px;">
-                                    </div>
-                                </div>
-                            `,
-                            showCancelButton: true,
-                            confirmButtonText: 'Save & Continue',
-                            cancelButtonText: 'Cancel',
-                            confirmButtonColor: '#FF6F61',
-                            cancelButtonColor: '#6c757d',
-                            customClass: {
-                                popup: 'swal-wide',
-                                confirmButton: 'btn btn-primary',
-                                cancelButton: 'btn btn-secondary'
-                            },
-                            focusConfirm: false,
-                            preConfirm: () => {
-                                const pincode = document.getElementById('pincode').value;
-                                const district = document.getElementById('district').value;
-                                const state = document.getElementById('state').value;
-
-                                if (!pincode || !district || !state) {
-                                    Swal.showValidationMessage('Please fill in all required fields');
-                                    return false;
-                                }
-
-                                return {
-                                    name: data.profile_data.name,
-                                    address: data.profile_data.address,
-                                    place: data.profile_data.place,
-                                    pincode,
-                                    district,
-                                    state
-                                };
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                fetch('/cart/save-profile/', {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRFToken': getCookie('csrftoken'),
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(result.value)
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        window.location.href = '/cart/order-summary/';
-                                    } else {
-                                        Swal.fire({
-                                            title: 'Error',
-                                            text: data.message || 'Failed to save profile',
-                                            icon: 'error',
-                                            confirmButtonColor: '#FF6F61'
-                                        });
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    Swal.fire({
-                                        title: 'Error',
-                                        text: 'Failed to save profile',
-                                        icon: 'error',
-                                        confirmButtonColor: '#FF6F61'
-                                    });
-                                });
-                            }
-                        });
-                    } else {
-                        window.location.href = '/cart/order-summary/';
-                    }
-                } else {
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Profile not found. Please create your profile first.',
-                        icon: 'error',
-                        confirmButtonColor: '#FF6F61'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Failed to check profile',
-                    icon: 'error',
-                    confirmButtonColor: '#FF6F61'
-                });
-            });
+            window.location.href = "{% url 'order_summary' %}";
         }
 
         function getCookie(name) {

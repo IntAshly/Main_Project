@@ -60,7 +60,7 @@ urlpatterns = [
     path('notifications/', views.notification_view, name='notification'),
     path('delete-notification/<int:notification_id>/', views.delete_notification, name='delete_notification'),
     path('healthprofile/', views.health_profile_view, name='view_healthprofile'),
-    path('edit-health-profile/', views.edit_health_profile_view, name='edit_health_profile'),
+    path('edit-health-profile/', views.edit_health_profile_view, name='edit_health_profile_view'),
     path('chart/', views.chart_view, name='chart'), 
     path('upload_image/', views.upload_image, name='upload_image'),
 
@@ -118,6 +118,41 @@ urlpatterns = [
     path('toy-assistant/', views.toy_assistant_page, name='toy_assistant'),
     path('api/toy-recommendations/', views.toy_recommendations, name='toy_recommendations'),
     path('api/chat/', views.chat_api, name='chat_api'),
+    
+    
+    path('delivery_manage/', views.delivery_manage, name='delivery_manage'),
+    path('admin_deliveryhome/', views.admin_deliveryhome, name='admin_deliveryhome'),
+    path('delivery_mainpage/', views.delivery_mainpage, name='delivery_mainpage'),
+    path('add_delivery_boy/', views.add_delivery_boy, name='add_delivery_boy'),
+    path('view-delivery-boys/', views.view_delivery_boys, name='view_delivery_boys'),
+    path('app/get_delivery_boy_details/<int:delivery_boy_id>/', views.get_delivery_boy_details, name='get_delivery_boy_details'),
+    
+    path('delivery_home/', views.delivery_home, name='delivery_home'),
+    path('deliveryboy_profile/', views.deliveryboy_profile, name='deliveryboy_profile'),
+    
+    path('get-available-delivery-boys/<int:order_id>/', views.get_available_delivery_boys, name='get_available_delivery_boys'),
+    path('assign-delivery-boy/', views.assign_delivery_boy, name='assign_delivery_boy'),
+
+    path('update-delivery-status/', views.update_delivery_status, name='update_delivery_status'),
+    path('get-assigned-delivery-boy/<int:order_id>/', views.get_assigned_delivery_boy, name='get_assigned_delivery_boy'),
+    
+    path('delivery/orders/all/', views.assigned_orders, name='all_delivery_orders'),
+    path('delivery/orders/<str:status>/', views.assigned_orders, name='delivery_orders'),
+
+    path('assigned-orders/', views.assigned_orders, name='assigned_orders'),
+    path('assigned-orders/<str:status>/', views.assigned_orders, name='delivery_orders'),
+
+    path('send-delivery-otp/', views.send_delivery_otp, name='send_delivery_otp'),
+    path('verify-delivery-otp/', views.verify_delivery_otp, name='verify_delivery_otp'),
+    
+    path('deliveryboy-pswd/', views.deliveryboy_pswd, name='deliveryboy_pswd'),
+    path('deliveryboy-updateprofile/', views.deliveryboy_updateprofile, name='deliveryboy_updateprofile'),
+
+    path('get-delivery-profile/', views.get_delivery_profile, name='get_delivery_profile'),
+
+    path('download-orders/', views.download_orders, name='download_orders'),
+
+    
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

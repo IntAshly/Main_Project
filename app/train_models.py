@@ -124,9 +124,11 @@ def predict_medicine_details(image_path):
         # Preprocess image
         features = preprocess_image(image_path).reshape(1, -1)
 
-        # Make prediction
+        # Make prediction with probability
+        prediction_proba = model.predict_proba(features)
         prediction = model.predict(features)
         predicted_label = encoder.inverse_transform(prediction)[0]
+        confidence = prediction_proba[0][prediction[0]]
 
         # Fetch additional details from the CSV
         df = read_csv_with_encoding()
@@ -136,11 +138,13 @@ def predict_medicine_details(image_path):
             return {'error': 'No details found for predicted medicine'}
 
         # Get the correct image path for response
-        medicine_image_filename = medicine_row['Image Path'].values[0]  # Assuming CSV contains filenames
+        medicine_image_filename = medicine_row['Image Path'].values[0]
         medicine_image_full_path = os.path.join(MEDICINE_IMAGES_DIR, os.path.basename(medicine_image_filename))
 
+        # Format the medicine details
         medicine_info = {
             'name': predicted_label,
+            'confidence': round(confidence * 100, 2),  # Convert to percentage
             'usage': medicine_row['Usage'].values[0] if 'Usage' in medicine_row else 'Unknown',
             'advantages': medicine_row['Advantages'].values[0] if 'Advantages' in medicine_row else 'Unknown',
             'age_group': medicine_row['Age Group'].values[0] if 'Age Group' in medicine_row else 'Unknown',
@@ -148,8 +152,13 @@ def predict_medicine_details(image_path):
             'image_path': medicine_image_full_path
         }
 
+        # Add warning if confidence is low
+        if confidence < 0.7:
+            medicine_info['warning'] = 'Low confidence prediction. Please verify the medicine details.'
+
         return medicine_info
     except Exception as e:
+        print(f"Error in prediction: {str(e)}")  # Log the error
         return {'error': f"Error in prediction: {str(e)}"}
 
 

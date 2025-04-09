@@ -168,9 +168,8 @@
     </div>
 </div>
 
-
- <!-- Shop Dropdown -->
- <div class="nav-item dropdown">
+<!-- Shop Dropdown -->
+<div class="nav-item dropdown">
     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
         <i class="fas fa-shopping-bag"></i>
     </a>
@@ -184,17 +183,19 @@
         <a href="{% url 'my_orders' %}" class="dropdown-item">
             <i class="fas fa-history me-2"></i>Order History
         </a> 
+       
     </div>
 </div>
+
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <img src="{% static "img/name.png" %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
-                                {{ user.get_full_name|default:user.username }}
+                                Hey,{{ user.get_full_name|default:user.username }}
                             </a>
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                 <a href="{% url 'parent_profile' %}" class="dropdown-item">My Profile</a>
                                 <a href="{% url 'vaccination_history' %}" class="dropdown-item">View Vaccination History</a>
-
+                                <a href="{% url 'health_assistant_page' %}" class="dropdown-item">Health Assistant</a>
                                 <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                             </div>
                         </div>
